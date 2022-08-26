@@ -13,6 +13,7 @@ Block::Block(SDL_Renderer* renderer)
 		SDL_Surface* surf = IMG_Load("assets/blocks.png");
 		if (!surf) {
 			std::cerr << IMG_GetError() << std::endl;
+			exit(1);
 		}
 		int width = surf->w;	// width should be 255
 		int height = surf->h;	// height should be 32
