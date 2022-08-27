@@ -38,3 +38,8 @@ You can easily setup the project on Visual Studio.
 6. Copy and Paste .dll files to the project directory
 
 Also remember to configurate SDL2 extension as above.
+
+## Credits
+[SDL2](https://github.com/libsdl-org)
+
+Amine B. Hassouna [@aminosbh](https://gitlab.com/aminosbh)
