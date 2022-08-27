@@ -40,3 +40,10 @@ build/
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+*.vs
+
+# Visual Code
+*.vscode
+
+# OS X
+*.DS_STORE
