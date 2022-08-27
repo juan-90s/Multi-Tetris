@@ -15,7 +15,7 @@ Block::Block(SDL_Renderer* renderer)
 			std::cerr << IMG_GetError() << std::endl;
 			exit(1);
 		}
-		int width = surf->w;	// width should be 255
+		/*int width = surf->w;	// width should be 255*/
 		int height = surf->h;	// height should be 32
 		SDL_Texture* aio_img = SDL_CreateTextureFromSurface(RENDERER, surf);
 		SDL_FreeSurface(surf);

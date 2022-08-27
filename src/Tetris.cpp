@@ -210,7 +210,8 @@ PlayerBlock::PlayerBlock(SDL_Renderer* RENDERER)
 
 void PlayerBlock::clean() 
 {
-	delete pNext, pCur;
+	delete pNext;
+	delete pCur;
 }
 
 inline void PlayerBlock::backup()

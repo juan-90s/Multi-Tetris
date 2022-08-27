@@ -45,7 +45,7 @@ private:
 	SDL_Renderer* RENDERER = 0;
 	PlayerBlock playerBlock = 0;
 
-	std::vector<std::vector<int>> map;  // store block type(1..7) in 2-d map. 0 means empty
+	std::vector< std::vector<int> > map;  // store block type(1..7) in 2-d map. 0 means empty
 	int rows, cols;
 	int leftMargin, topMargin;
 	int blockSize;
