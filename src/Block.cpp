@@ -45,7 +45,7 @@ Block::Block(SDL_Renderer* renderer)
 
 
 	// randomly generate one type of blocks
-	m_blockType = rand() % 7 + 1;	// 1..7
+	m_blockType = 1 + (int)(7.0 * (rand() / (RAND_MAX + 1.0)));	// 1..7
 	// intialize basicBlocks' point (begin from 0)
 	for (int i = 0; i < 4; i++) {
 		int value = blockShapes[m_blockType - 1][i];
