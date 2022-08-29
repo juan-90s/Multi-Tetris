@@ -1,107 +1,101 @@
 #include "Tetris.h"
+#include "SDL_image.h"
 
 
 
-
-Tetris::Tetris(SDL_Renderer* RENDERER, int rows, int cols, int left, int top, int blockSize)
+Tetris::Tetris(SDL_Renderer* m_renderer, int rows, int cols, int left, int top, int blockSize)
 {
-	this->RENDERER = RENDERER;
-	this->rows = rows;
-	this->cols = cols;
-	this->leftMargin = left;
-	this->topMargin = top;
-	this->blockSize = blockSize;
+	this->m_renderer = m_renderer;
+	this->m_rows = rows;
+	this->m_cols = cols;
+	this->m_leftMargin = left;
+	this->m_topMargin = top;
+	this->m_blockSize = blockSize;
 
 	for (int i = 0; i < rows; i++) {
 		std::vector<int> mapRow;
 		for (int j = 0; j < cols; j++) {
 			mapRow.push_back(0);
 		}
-		map.push_back(mapRow);
+		m_grid.push_back(mapRow);
 	}
-}
-
-void Tetris::init()
-{
-	// refresh blocks data
-	for (int i = 0; i < map.size(); i++) {
-		for (int j = 0; j < map[i].size(); j++) {
-			map[i][j] = 0;
-		}
-	}
-
-	//
-	playerBlock = PlayerBlock(RENDERER);
-
 	/*-------------------- Texture Load -----------------------*/
-	// load background
-	backgroundIMG = IMG_LoadTexture(RENDERER, "assets/background.png");
 
 	// draw frame (adaptive)
 	SDL_Surface* surf = IMG_Load("assets/blocks.png");
-	SDL_Rect srcrect = {224, 0, surf->h, surf->h};  // pick the last block image
-	SDL_Rect dstrest = {0, 0, blockSize, blockSize };
-	SDL_Texture* aio_img = SDL_CreateTextureFromSurface(RENDERER, surf);
+	SDL_Rect srcrect = { 224, 0, surf->h, surf->h };  // pick the last block image
+	SDL_Rect dstrest = { 0, 0, blockSize, blockSize };
+	SDL_Texture* aio_img = SDL_CreateTextureFromSurface(m_renderer, surf);
 	SDL_FreeSurface(surf);
 
 	int frame_rows = rows + 1, frame_cols = cols + 2;
-	frameIMG = SDL_CreateTexture(RENDERER, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
+	m_frameIMG = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
 		frame_cols * blockSize, frame_rows * blockSize);
-	SDL_SetTextureBlendMode(frameIMG, SDL_BLENDMODE_BLEND);  // avoid black ground
-	SDL_SetRenderTarget(RENDERER, frameIMG);
+	SDL_SetTextureBlendMode(m_frameIMG, SDL_BLENDMODE_BLEND);  // avoid black ground
+	SDL_SetRenderTarget(m_renderer, m_frameIMG);
 	for (int i = 0; i < frame_rows; i++) {
 		// draw in row
 		dstrest.y = i * blockSize;
 		if (i < frame_rows - 1) {
 			// first block in this row
 			dstrest.x = 0;
-			SDL_RenderCopy(RENDERER, aio_img, &srcrect, &dstrest);
+			SDL_RenderCopy(m_renderer, aio_img, &srcrect, &dstrest);
 			// last block in this row
 			dstrest.x = (frame_cols - 1) * blockSize;
-			SDL_RenderCopy(RENDERER, aio_img, &srcrect, &dstrest);
+			SDL_RenderCopy(m_renderer, aio_img, &srcrect, &dstrest);
 		}
 		else {
 			// last row
 			for (int j = 0; j < frame_cols; j++) {
 				dstrest.x = j * blockSize;
-				SDL_RenderCopy(RENDERER, aio_img, &srcrect, &dstrest);
+				SDL_RenderCopy(m_renderer, aio_img, &srcrect, &dstrest);
 			}
 		}
 	}
 	SDL_DestroyTexture(aio_img);
-	SDL_SetRenderTarget(RENDERER, NULL);
+	SDL_SetRenderTarget(m_renderer, NULL);
+}
+
+void Tetris::init()
+{
+	// refresh blocks data
+	for (int i = 0; i < m_grid.size(); i++) {
+		for (int j = 0; j < m_grid[i].size(); j++) {
+			m_grid[i][j] = 0;
+		}
+	}
+
+	//
+	playerBlock = PlayerBlock(m_renderer);
 }
 
 void Tetris::clean()
 {
 	playerBlock.clean();
-	SDL_DestroyTexture(backgroundIMG);
-	SDL_DestroyTexture(frameIMG);
+	SDL_DestroyTexture(m_frameIMG);
 }
 
 void Tetris::draw()
 {
-	// render background
-	SDL_RenderCopy(RENDERER, backgroundIMG, NULL, NULL);
 	// render frame
-	SDL_Rect framerect = { leftMargin - blockSize, topMargin, };
-	SDL_QueryTexture(frameIMG, NULL, NULL, &framerect.w, &framerect.h);
-	SDL_RenderCopy(RENDERER, frameIMG, NULL, &framerect);
+	SDL_Rect framerect = { m_leftMargin - m_blockSize, m_topMargin, };
+	SDL_QueryTexture(m_frameIMG, NULL, NULL, &framerect.w, &framerect.h);
+	SDL_RenderCopy(m_renderer, m_frameIMG, NULL, &framerect);
 	
-	playerBlock.pCur->draw(leftMargin, topMargin);
+	playerBlock.pCur->draw(m_leftMargin, m_topMargin);
 	playerBlock.pNext->draw(10, 50);
 
-	SDL_Texture** imgs = Block::getIMGs();
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < cols; j++) {
-			if (map[i][j] == 0) continue;
+	SDL_Texture** m_IMGS = Block::getIMGs();
+	for (int i = 0; i < m_rows; i++) {
+		for (int j = 0; j < m_cols; j++) {
+			if (m_grid[i][j] == 0) continue;
 
 			SDL_Rect dstrect = {0, };
-			dstrect.x = j * blockSize + leftMargin;
-			dstrect.y = i * blockSize + topMargin;
-			dstrect.w = blockSize;
-			dstrect.h = blockSize;
-			SDL_RenderCopy(RENDERER, imgs[map[i][j] - 1], NULL, &dstrect);
+			dstrect.x = j * m_blockSize + m_leftMargin;
+			dstrect.y = i * m_blockSize + m_topMargin;
+			dstrect.w = m_blockSize;
+			dstrect.h = m_blockSize;
+			SDL_RenderCopy(m_renderer, m_IMGS[m_grid[i][j] - 1], NULL, &dstrect);
 		}
 	}
 }
@@ -117,11 +111,11 @@ void Tetris::drop(PlayerBlock &pBlock)
 	if (!checkBlock(pBlock.pCur)) {
 		// touch botton or other blocks, fix
 		fixBlock(&pBlock.pBak);
-		pBlock.nextNew(RENDERER);
+		pBlock.nextNew(m_renderer);
 	}
 }
 
-void Tetris::moveLeftRight(PlayerBlock& pBlock, int offset)
+void Tetris::moveLeftRight(PlayerBlock& pBlock, const int offset)
 {
 	pBlock.backup();
 	pBlock.pCur->moveLeftRight(offset);
@@ -134,6 +128,7 @@ void Tetris::moveLeftRight(PlayerBlock& pBlock, int offset)
 
 void Tetris::rotate(PlayerBlock& pBlock)
 {
+	// TODO: optimize rotate logic
 	if (pBlock.pCur->getType() == 7)
 		// if block is square, then do nothing
 		return;
@@ -149,18 +144,18 @@ void Tetris::rotate(PlayerBlock& pBlock)
 void Tetris::clearLine()
 {
 	int lines = 0;
-	int k = rows - 1;
-	for (int i = rows - 1; i >= 0; i--) {
+	int k = m_rows - 1;
+	for (int i = m_rows - 1; i >= 0; i--) {
 		// check whether row i is fully filled
 		int count = 0;
-		for (int j = 0; j < cols; j++) {
-			if (map[i][j]) {
+		for (int j = 0; j < m_cols; j++) {
+			if (m_grid[i][j]) {
 				count++;
 			}
-			map[k][j] = map[i][j];
+			m_grid[k][j] = m_grid[i][j];
 		}
 
-		if (count < cols) {  
+		if (count < m_cols) {  
 			// not fully filled, index k decrease as i
 			k--;
 		}
@@ -175,18 +170,18 @@ void Tetris::clearLine()
 	}
 }
 
-PlayerBlock& Tetris::player(int num)
+PlayerBlock& Tetris::player(const int num)
 {
 	return playerBlock;
 }
 
-bool Tetris::checkBlock(Block* block)
+bool Tetris::checkBlock(Block* block) const
 {
 	Point* points = block->getPoints();
 	for (int i = 0; i < 4; i++) {
-		if (points[i].row < 0 || points[i].row >= rows ||
-			points[i].col < 0 || points[i].col >= cols ||
-			map[points[i].row][points[i].col] != 0)
+		if (points[i].row < 0 || points[i].row >= m_rows ||
+			points[i].col < 0 || points[i].col >= m_cols ||
+			m_grid[points[i].row][points[i].col] != 0)
 			return false; 
 	}
 	return true;
@@ -197,15 +192,15 @@ void Tetris::fixBlock(Block* block)
 	Point* points = block->getPoints();
 	for (int i = 0; i < 4; i++) {
 		// mark type value on map
-		map[points[i].row][points[i].col] = block->getType();
+		m_grid[points[i].row][points[i].col] = block->getType();
 	}
 }
 
-PlayerBlock::PlayerBlock(SDL_Renderer* RENDERER) 
+PlayerBlock::PlayerBlock(SDL_Renderer* m_renderer) 
 {
-	pNext = new Block(RENDERER);
+	pNext = new Block(m_renderer);
 	pCur = pNext;
-	pNext = new Block(RENDERER);
+	pNext = new Block(m_renderer);
 }
 
 void PlayerBlock::clean() 
@@ -224,10 +219,10 @@ void PlayerBlock::recover()
 	*pCur = pBak;
 }
 
-void PlayerBlock::nextNew(SDL_Renderer* RENDERER) {
+void PlayerBlock::nextNew(SDL_Renderer* m_renderer) {
 	delete pCur;
 	pCur = pNext;
-	pNext = new Block(RENDERER);
+	pNext = new Block(m_renderer);
 }
 
 bool PlayerBlock::speedControl()

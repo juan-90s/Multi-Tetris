@@ -1,27 +1,28 @@
 #pragma once
-#include "Tetris.h"
 #include "SDL.h"
+#include "Tetris.h"
+
 class Game
 {
 public:
 	Game();
 	void play();
+
+private:
 	void render();
 	void quit();
-private:
 	bool inputEvent();
-	int getDelay();		// get last time calling this method
+	int getDelay() const;		// get last time calling this method
 
 private:
-	int window_width, window_height;
-	SDL_Window* WINDOW = NULL;
-	SDL_Renderer* RENDERER = NULL;
+	int m_iWidth;
+	int m_iHeight;
+	SDL_Window* m_gWindow;
+	SDL_Renderer* m_gRenderer;
 
-	bool update;
-	int delay;
+	bool m_bUpdate;
+	int m_iDelay;
 
-	Tetris tetris = {0,0,0,0,0,0};
-
-
+	Tetris m_Tetris;
 };
 

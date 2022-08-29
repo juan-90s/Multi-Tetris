@@ -1,31 +1,38 @@
 #include "Game.h"
 #include <time.h>
 #include <stdlib.h>
+#include <iostream>
+#include "SDL_image.h"
 
-const int SPEED_NORMAL = 100;  // ms
+namespace {
+	const int SPEED_NORMAL = 100;  // ms
+}
 
 Game::Game()
 {
-	window_width = 960;
-	window_height = 720;
-	delay = SPEED_NORMAL;
-	update = false;
+	m_iWidth = 960;
+	m_iHeight = 720;
+	m_iDelay = SPEED_NORMAL;
+	m_bUpdate = false;
 	// initialize SDL window and renderer
-	if (SDL_Init(SDL_INIT_EVERYTHING) >= 0) {
-		IMG_Init(IMG_INIT_PNG);
+	bool isSDLinited = SDL_Init(SDL_INIT_EVERYTHING) >= 0;
+	bool isIMGinited = (IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == IMG_INIT_PNG;
+	if (isSDLinited && isIMGinited) {
 		// setup window size
-		WINDOW = SDL_CreateWindow("Tetris",
+		m_gWindow = SDL_CreateWindow("Tetris",
 			0,
 			30,
-			window_width, window_height,
+			m_iWidth, m_iHeight,
 			SDL_WINDOW_SHOWN);
 
-		if (WINDOW != 0) {
-			RENDERER = SDL_CreateRenderer(WINDOW, -1, 0);
-			tetris = Tetris(RENDERER, 20, 10, 480, 50, 32);
+		if (m_gWindow != 0) {
+			m_gRenderer = SDL_CreateRenderer(m_gWindow, -1, 0);
+			m_Tetris = Tetris(m_gRenderer, 20, 10, 480, 50, 32);
 		}
 	}
 	else {
+		std::cerr << "SDL initialization failed\n";
+		std::cerr << SDL_GetError() << std::endl;
 		exit(1);
 	}
 	
@@ -35,23 +42,23 @@ void Game::play()
 {
 	// config random seed
 	srand((unsigned int)time(0));
-	tetris.init();
+	m_Tetris.init();
 
 	int timer = 0;
 	while (inputEvent()) {
 		SDL_Delay(1);
 		timer += getDelay();
-		if (timer > delay) {
+		if (timer > m_iDelay) {
 			timer = 0;
-			tetris.drop(tetris.player(1));
-			update = true;
+			m_Tetris.drop(m_Tetris.player(1));
+			m_bUpdate = true;
 		}
 
-		if (update) {
-			update = false;
+		if (m_bUpdate) {
+			m_bUpdate = false;
 			// update screen
 			render();
-			tetris.clearLine();
+			m_Tetris.clearLine();
 		}
 	}
 
@@ -60,18 +67,16 @@ void Game::play()
 
 void Game::render()
 {
-	SDL_RenderClear(RENDERER);
-	//
-	tetris.draw();
-
-	SDL_RenderPresent(RENDERER);
+	SDL_RenderClear(m_gRenderer);
+	m_Tetris.draw();
+	SDL_RenderPresent(m_gRenderer);
 }
 
 void Game::quit()
 {
-	tetris.clean();
-	SDL_DestroyRenderer(RENDERER);
-	SDL_DestroyWindow(WINDOW);
+	m_Tetris.clean();
+	SDL_DestroyRenderer(m_gRenderer);
+	SDL_DestroyWindow(m_gWindow);
 	SDL_Quit();
 }
 
@@ -88,19 +93,19 @@ bool Game::inputEvent()
 			switch (event.key.keysym.sym)
 			{
 			case SDLK_LEFT:
-				tetris.moveLeftRight(tetris.player(1), -1);
-				update = true;
+				m_Tetris.moveLeftRight(m_Tetris.player(1), -1);
+				m_bUpdate = true;
 				break;
 			case SDLK_RIGHT:
-				tetris.moveLeftRight(tetris.player(1), 1);
-				update = true;
+				m_Tetris.moveLeftRight(m_Tetris.player(1), 1);
+				m_bUpdate = true;
 				break;
 			case SDLK_UP:
-				tetris.rotate(tetris.player(1));
-				update = true;
+				m_Tetris.rotate(m_Tetris.player(1));
+				m_bUpdate = true;
 				break;
 			case SDLK_DOWN:
-				tetris.player(1).unlockControl();
+				m_Tetris.player(1).unlockControl();
 				break;
 			}
 			break;
@@ -113,7 +118,7 @@ bool Game::inputEvent()
 
 // first call: return 0
 // return the time duration between this call and last call
-int Game::getDelay()
+int Game::getDelay() const
 {
 	static Uint32 lastTime = 0;
 	Uint32 currentTime = SDL_GetTicks();
