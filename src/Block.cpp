@@ -1,36 +1,20 @@
 #include "Block.h"
 #include <stdlib.h>
-#include <iostream>
-#include "SDL_image.h"
 
-SDL_Texture* Block::m_IMGS[7] = {NULL, };
+MTSTexture Block::m_IMGS[8] = {};
 int Block::m_size = 32;
 
-Block::Block(SDL_Renderer* renderer)
+Block::Block()
 {
-	m_renderer = renderer;
-	if (m_IMGS[0] == NULL) {
+	if (m_IMGS[0].isEmpty()) {
 		// Load all-in-on blocks image W: 0..255, H: 0..31
-		SDL_Surface* surf = IMG_Load("assets/blocks.png");
-		if (!surf) {
-			std::cerr << IMG_GetError() << std::endl;
-			exit(1);
+		MTSTexture aio_img = MTSTexture("assets/blocks.png");
+		int src_size = aio_img.getHeight();
+		for (int i = 0; i < 8; i++) {
+			m_IMGS[i] = MTSTexture(m_size, m_size);
+			Rect rect = {i * src_size, 0, src_size, src_size };
+			aio_img.copyToTexture(m_IMGS[i], &rect, NULL);
 		}
-		m_size = surf->h;	// height should be 32
-		SDL_Texture* aio_img = SDL_CreateTextureFromSurface(m_renderer, surf);
-		SDL_FreeSurface(surf);
-		for (int i = 0; i < 7; i++) {
-			m_IMGS[i] = SDL_CreateTexture(m_renderer,
-										SDL_PIXELFORMAT_RGBA8888,
-										SDL_TEXTUREACCESS_TARGET,
-										m_size, m_size);
-			SDL_SetTextureBlendMode(m_IMGS[i], SDL_BLENDMODE_BLEND);
-			SDL_Rect rect = {i * m_size, 0, m_size, m_size };  // ignore last black block
-			SDL_SetRenderTarget(m_renderer, m_IMGS[i]);
-			SDL_RenderCopy(m_renderer, aio_img, &rect, NULL);
-		}
-		SDL_DestroyTexture(aio_img);
-		SDL_SetRenderTarget(m_renderer, NULL);
 	}
 
 	int blockShapes[7][4] = {
@@ -53,8 +37,12 @@ Block::Block(SDL_Renderer* renderer)
 		m_blockPoints[i].col = value % 2;
 	}
 
-	m_blockIMG = m_IMGS[m_blockType - 1];
+	m_blockIMG = m_IMGS[m_blockType];
 
+}
+
+Block::~Block()
+{
 }
 
 void Block::drop()
@@ -82,14 +70,15 @@ void Block::rotate()
 	}
 }
 
-void Block::draw(int leftMargin, int topMargin)
+void Block::draw(int leftMargin, int topMargin, int size)
 {
-	SDL_Rect dstRect = { 0, };
-	SDL_QueryTexture(m_blockIMG, NULL, NULL, &dstRect.w, &dstRect.h);
+	Rect dstRect = { 0, };
+	dstRect.w = size;
+	dstRect.h = size;
 	for (int i = 0; i < 4; i++) {
-		dstRect.x = leftMargin + m_blockPoints[i].col * m_size;
-		dstRect.y = topMargin + m_blockPoints[i].row * m_size;
-		SDL_RenderCopy(m_renderer, m_blockIMG, NULL, &dstRect);
+		dstRect.x = leftMargin + m_blockPoints[i].col * size;
+		dstRect.y = topMargin + m_blockPoints[i].row * size;
+		m_blockIMG.copyToRenderer(NULL, &dstRect);
 	}
 }
 
@@ -103,7 +92,7 @@ Point* Block::getPoints()
 	return m_blockPoints;
 }
 
-SDL_Texture** Block::getIMGs()
+MTSTexture* Block::getIMGs()
 {
 	return m_IMGS;
 }
@@ -115,5 +104,6 @@ Block& Block::operator=(const Block& other)
 	for (int i = 0; i < 4; i++) {
 		this->m_blockPoints[i] = other.m_blockPoints[i];
 	}
+	this->m_blockIMG = other.m_blockIMG;
 	return *this;
 }

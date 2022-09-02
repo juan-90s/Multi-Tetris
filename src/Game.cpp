@@ -4,6 +4,7 @@
 #include <iostream>
 #include "SDL_image.h"
 
+
 namespace {
 	const int SPEED_NORMAL = 100;  // ms
 }
@@ -27,7 +28,8 @@ Game::Game()
 
 		if (m_gWindow != 0) {
 			m_gRenderer = SDL_CreateRenderer(m_gWindow, -1, 0);
-			m_Tetris = Tetris(m_gRenderer, 20, 10, 480, 50, 32);
+			MTSTexture::setRenderer(m_gRenderer);
+			m_Tetris = Tetris(20, 10, 480, 50, 32);
 		}
 	}
 	else {
@@ -43,7 +45,7 @@ void Game::play()
 	// config random seed
 	srand((unsigned int)time(0));
 	m_Tetris.init();
-
+	bg = MTSTexture("assets/background.png");
 	int timer = 0;
 	while (inputEvent()) {
 		SDL_Delay(1);
@@ -68,6 +70,7 @@ void Game::play()
 void Game::render()
 {
 	SDL_RenderClear(m_gRenderer);
+	bg.copyToRenderer(0,0);
 	m_Tetris.draw();
 	SDL_RenderPresent(m_gRenderer);
 }
