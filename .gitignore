@@ -47,3 +47,6 @@ build/
 
 # OS X
 *.DS_STORE
+
+# Cmake module
+cmake/
