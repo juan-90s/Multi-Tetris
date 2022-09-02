@@ -18,6 +18,8 @@ $ sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev
 $ sudo apt install zlib1g libpng-dev
 ~~~
 
+Download FindSDL cmake module from [aminosbh/sdl2-cmake-modules](https://github.com/aminosbh/sdl2-cmake-modules), move the cmake directory into this project's root path. Make sure the path is correct as CMAKE_MODULE_PATH in Cmakelist.
+
 ## Build
 You can use cmake on Mac and Linux to build Unix Excutable
 ~~~
@@ -35,7 +37,7 @@ You can easily setup the project on Visual Studio.
 3. In C/C++ > General, add your SDL2/include directory into Additional Include Directories
 4. In Linker > General, add your SDL2/lib/x86 or x64 into Additional Library Directories
 5. In Linker > Input, edit Additional Dependencies, add SDL2.lib SDL2main.lib
-6. Copy and Paste .dll files to the project directory
+6. In Linker > SubSystem, select **Console**. If you don't need the terminal to observe debug output, then select **Windows**
 
 Also remember to configurate SDL2 extension as above.
 
