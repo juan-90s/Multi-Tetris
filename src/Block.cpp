@@ -12,7 +12,7 @@ Block::Block()
 		int src_size = aio_img.getHeight();
 		for (int i = 0; i < 8; i++) {
 			m_IMGS[i] = MTSTexture(m_size, m_size);
-			Rect rect = {i * src_size, 0, src_size, src_size };
+			SDL_Rect rect = {i * src_size, 0, src_size, src_size };
 			aio_img.copyToTexture(m_IMGS[i], &rect, NULL);
 		}
 	}
@@ -72,7 +72,7 @@ void Block::rotate()
 
 void Block::draw(int leftMargin, int topMargin, int size)
 {
-	Rect dstRect = { 0, };
+	SDL_Rect dstRect = { 0, };
 	dstRect.w = size;
 	dstRect.h = size;
 	for (int i = 0; i < 4; i++) {

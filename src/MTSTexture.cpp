@@ -69,28 +69,10 @@ bool MTSTexture::checkRenderer()
 	return bool(s_renderer);
 }
 
-void MTSTexture::copyToRenderer(const Rect* src, const Rect* dst)
+void MTSTexture::copyToRenderer(const SDL_Rect* src, const SDL_Rect* dst)
 {
 	if (!checkRenderer()) return;
-	SDL_Rect* src_ptr;
-	SDL_Rect* dst_ptr;
-	if (src) {
-		SDL_Rect srcRect = { src->x, src->y, src->w, src->h };
-		src_ptr = &srcRect;
-	}
-	else
-	{
-		src_ptr = NULL;
-	}
-	if (dst) {
-		SDL_Rect dstRect = { dst->x, dst->y, dst->w, dst->h };
-		dst_ptr = &dstRect;
-	}
-	else
-	{
-		dst_ptr = NULL;
-	}
-	SDL_RenderCopy(s_renderer, m_texture_ptr.get(), src_ptr, dst_ptr);
+	SDL_RenderCopy(s_renderer, m_texture_ptr.get(), src, dst);
 	
 }
 
@@ -104,31 +86,13 @@ void MTSTexture::copyToRenderer(const int x, const int y)
 	SDL_RenderCopy(s_renderer, m_texture_ptr.get(), NULL, &dstRect);
 }
 
-void MTSTexture::copyToTexture(MTSTexture& otherTexture, const Rect* src, const Rect* dst)
+void MTSTexture::copyToTexture(MTSTexture& otherTexture, const SDL_Rect* src, const SDL_Rect* dst)
 {
 	if (!checkRenderer()) return;
-	SDL_Rect* src_ptr;
-	SDL_Rect* dst_ptr;
-	if (src) {
-		SDL_Rect srcRect = { src->x, src->y, src->w, src->h };
-		src_ptr = &srcRect;
-	}
-	else
-	{
-		src_ptr = 0;
-	}
-	if (dst) {
-		SDL_Rect dstRect = { dst->x, dst->y, dst->w, dst->h };
-		dst_ptr = &dstRect;
-	}
-	else
-	{
-		dst_ptr = 0;
-	}
 
 	SDL_SetTextureBlendMode(otherTexture.m_texture_ptr.get(), SDL_BLENDMODE_BLEND);
 	SDL_SetRenderTarget(s_renderer, otherTexture.m_texture_ptr.get());
-	SDL_RenderCopy(s_renderer, this->m_texture_ptr.get(), src_ptr, dst_ptr);
+	SDL_RenderCopy(s_renderer, this->m_texture_ptr.get(), src, dst);
 	SDL_SetRenderTarget(s_renderer, NULL);
 }
 

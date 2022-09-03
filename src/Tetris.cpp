@@ -46,7 +46,7 @@ void Tetris::draw()
 	playerBlock.pCur->draw(m_ilLeft, m_iTop, m_iBlockSize);
 	playerBlock.pNext->draw(m_ilLeft + (m_iCols + 8) * m_iBlockSize, m_iTop, m_iBlockSize);
 
-	Rect dstRect = {};
+	SDL_Rect dstRect = {};
 	dstRect.w = m_iBlockSize;
 	dstRect.h = m_iBlockSize;
 	// render frame

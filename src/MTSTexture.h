@@ -1,11 +1,6 @@
 #pragma once
 #include <memory>
-// Rect: {x, y, w, h}
-struct Rect {
-	int x, y;
-	int w, h;
-};
-
+#include "SDL_rect.h"
 
 struct SDL_Renderer;
 struct SDL_Texture;
@@ -34,9 +29,9 @@ public:
 	
 	static void setRenderer(SDL_Renderer* renderer);
 	static bool checkRenderer();
-	void copyToRenderer(const Rect* src, const Rect* dst);
+	void copyToRenderer(const SDL_Rect* src, const SDL_Rect* dst);
 	void copyToRenderer(const int x, const int y);
-	void copyToTexture(MTSTexture& otherTexture, const Rect* src, const Rect* dst);
+	void copyToTexture(MTSTexture& otherTexture, const SDL_Rect* src, const SDL_Rect* dst);
 
 	bool isEmpty() const;
 	int getWidth() const;
