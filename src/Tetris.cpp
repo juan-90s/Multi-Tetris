@@ -3,27 +3,29 @@
 
 Tetris::Tetris(int rows, int cols, int left, int top, int blockSize)
 {
-	this->m_rows = rows;
-	this->m_cols = cols;
-	this->m_leftMargin = left;
-	this->m_topMargin = top;
-	this->m_blockSize = blockSize;
+	this->m_iRows = rows;
+	this->m_iCols = cols;
+	this->m_ilLeft = left;
+	this->m_iTop = top;
+	this->m_iBlockSize = blockSize;
 
 	for (int i = 0; i < rows; i++) {
 		std::vector<int> mapRow;
 		for (int j = 0; j < cols; j++) {
 			mapRow.push_back(0);
 		}
-		m_grid.push_back(mapRow);
+		m_vec2dGrid.push_back(mapRow);
 	}
+	MTSFont novem("assets/novem___.ttf", 50, {200, 200, 200 });
+	m_labelScore = MTSLabel("SCORE: ", novem);
 }
 
 void Tetris::init()
 {
 	// refresh blocks data
-	for (int i = 0; i < m_grid.size(); i++) {
-		for (int j = 0; j < m_grid[i].size(); j++) {
-			m_grid[i][j] = 0;
+	for (int i = 0; i < m_vec2dGrid.size(); i++) {
+		for (int j = 0; j < m_vec2dGrid[i].size(); j++) {
+			m_vec2dGrid[i][j] = 0;
 		}
 	}
 	playerBlock = PlayerBlock();
@@ -38,41 +40,45 @@ void Tetris::draw()
 {
 	// get blocks texture
 	MTSTexture* m_IMGS = Block::getIMGs();
+	
+	
+	// render player block
+	playerBlock.pCur->draw(m_ilLeft, m_iTop, m_iBlockSize);
+	playerBlock.pNext->draw(m_ilLeft + (m_iCols + 8) * m_iBlockSize, m_iTop, m_iBlockSize);
+
+	Rect dstRect = {};
+	dstRect.w = m_iBlockSize;
+	dstRect.h = m_iBlockSize;
 	// render frame
-	
-	
-	playerBlock.pCur->draw(m_leftMargin, m_topMargin, m_blockSize);
-	playerBlock.pNext->draw(10, 50, m_blockSize);
-
-	Rect dstrect = {};
-	dstrect.w = m_blockSize;
-	dstrect.h = m_blockSize;
-
-	for (int i = 0; i < m_rows; i++) {
+	for (int i = 0; i < m_iRows; i++) {
 		// render line by line
-		dstrect.y = m_topMargin + i * m_blockSize;
+		dstRect.y = m_iTop + i * m_iBlockSize;
 
 		// render grey block wall in left
-		dstrect.x = m_leftMargin - m_blockSize;
-		m_IMGS[0].copyToRenderer(NULL, &dstrect);
+		dstRect.x = m_ilLeft - m_iBlockSize;
+		m_IMGS[0].copyToRenderer(NULL, &dstRect);
 
 		// render grey block wall in right
-		dstrect.x = m_leftMargin + m_cols * m_blockSize;
-		m_IMGS[0].copyToRenderer(NULL, &dstrect);
+		dstRect.x = m_ilLeft + m_iCols * m_iBlockSize;
+		m_IMGS[0].copyToRenderer(NULL, &dstRect);
 
-		for (int j = 0; j < m_cols; j++) {
-			if (m_grid[i][j] == 0) continue;
-			dstrect.x = m_leftMargin + j * m_blockSize;
-			m_IMGS[m_grid[i][j]].copyToRenderer(NULL, &dstrect);
+		for (int j = 0; j < m_iCols; j++) {
+			if (m_vec2dGrid[i][j] == 0) continue;
+			dstRect.x = m_ilLeft + j * m_iBlockSize;
+			m_IMGS[m_vec2dGrid[i][j]].copyToRenderer(NULL, &dstRect);
 		}
 	}
 
 	// render bottom
-	dstrect.y = m_topMargin + m_rows * m_blockSize;
-	for (int j = -1; j < m_cols + 1; j++) {
-		dstrect.x = m_leftMargin + j * m_blockSize;
-		m_IMGS[0].copyToRenderer(NULL, &dstrect);
+	dstRect.y = m_iTop + m_iRows * m_iBlockSize;
+	for (int j = -1; j < m_iCols + 1; j++) {
+		dstRect.x = m_ilLeft + j * m_iBlockSize;
+		m_IMGS[0].copyToRenderer(NULL, &dstRect);
 	}
+
+	// render label
+	m_labelScore.setText("Score: " + std::to_string(m_iScore));
+	m_labelScore.copyToRenderer(m_ilLeft + m_iCols * m_iBlockSize + 10, m_iTop + m_iRows * m_iBlockSize / 2, Align::LEFT);
 }
 
 void Tetris::drop(PlayerBlock &pBlock)
@@ -119,18 +125,18 @@ void Tetris::rotate(PlayerBlock& pBlock)
 void Tetris::clearLine()
 {
 	int lines = 0;
-	int k = m_rows - 1;
-	for (int i = m_rows - 1; i >= 0; i--) {
+	int k = m_iRows - 1;
+	for (int i = m_iRows - 1; i >= 0; i--) {
 		// check whether row i is fully filled
 		int count = 0;
-		for (int j = 0; j < m_cols; j++) {
-			if (m_grid[i][j]) {
+		for (int j = 0; j < m_iCols; j++) {
+			if (m_vec2dGrid[i][j]) {
 				count++;
 			}
-			m_grid[k][j] = m_grid[i][j];
+			m_vec2dGrid[k][j] = m_vec2dGrid[i][j];
 		}
 
-		if (count < m_cols) {  
+		if (count < m_iCols) {  
 			// not fully filled, index k decrease as i
 			k--;
 		}
@@ -142,6 +148,7 @@ void Tetris::clearLine()
 	if (lines > 0) {
 		// TODO: calculate score
 		// TODO: play SFX
+		m_iScore += 10 * lines;
 	}
 }
 
@@ -154,9 +161,9 @@ bool Tetris::checkBlock(Block* block) const
 {
 	Point* points = block->getPoints();
 	for (int i = 0; i < 4; i++) {
-		if (points[i].row < 0 || points[i].row >= m_rows ||
-			points[i].col < 0 || points[i].col >= m_cols ||
-			m_grid[points[i].row][points[i].col] != 0)
+		if (points[i].row < 0 || points[i].row >= m_iRows ||
+			points[i].col < 0 || points[i].col >= m_iCols ||
+			m_vec2dGrid[points[i].row][points[i].col] != 0)
 			return false; 
 	}
 	return true;
@@ -167,7 +174,7 @@ void Tetris::fixBlock(Block* block)
 	Point* points = block->getPoints();
 	for (int i = 0; i < 4; i++) {
 		// mark type value on map
-		m_grid[points[i].row][points[i].col] = block->getType();
+		m_vec2dGrid[points[i].row][points[i].col] = block->getType();
 	}
 }
 

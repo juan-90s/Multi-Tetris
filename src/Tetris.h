@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include "Block.h"
+#include "MTSLabel.h"
 class PlayerBlock
 {
 	// TODO: refactor PlayerBlock, current design is not good
@@ -45,12 +46,16 @@ private:
 private:
 	PlayerBlock playerBlock;
 
-	std::vector< std::vector<int> > m_grid;  // store block type(1..7) in 2-d map. 0 means empty
-	int m_rows = 0;
-	int m_cols = 0;
-	int m_leftMargin = 0;
-	int m_topMargin = 0;
-	int m_blockSize = 0;
+	std::vector< std::vector<int> > m_vec2dGrid;  // store block type(1..7) in 2-d map. 0 means empty
+	int m_iRows = 0;
+	int m_iCols = 0;
+	int m_ilLeft = 0;
+	int m_iTop = 0;
+	int m_iBlockSize = 0;
+
+	MTSLabel m_labelScore;
+
+	int m_iScore = 0;
 };
 
 

@@ -18,7 +18,8 @@ Game::Game()
 	// initialize SDL window and renderer
 	bool isSDLinited = SDL_Init(SDL_INIT_EVERYTHING) >= 0;
 	bool isIMGinited = (IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == IMG_INIT_PNG;
-	if (isSDLinited && isIMGinited) {
+	bool isTTFinited = TTF_Init() >= 0;
+	if (isSDLinited && isIMGinited && isTTFinited) {
 		// setup window size
 		m_gWindow = SDL_CreateWindow("Tetris",
 			0,
@@ -29,7 +30,7 @@ Game::Game()
 		if (m_gWindow != 0) {
 			m_gRenderer = SDL_CreateRenderer(m_gWindow, -1, 0);
 			MTSTexture::setRenderer(m_gRenderer);
-			m_Tetris = Tetris(20, 10, 480, 50, 32);
+			m_Tetris = Tetris(20, 10, 200, 40, 32);
 		}
 	}
 	else {
@@ -70,7 +71,7 @@ void Game::play()
 void Game::render()
 {
 	SDL_RenderClear(m_gRenderer);
-	bg.copyToRenderer(0,0);
+	bg.copyToRenderer(nullptr, nullptr);
 	m_Tetris.draw();
 	SDL_RenderPresent(m_gRenderer);
 }
