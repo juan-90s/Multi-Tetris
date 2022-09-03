@@ -3,43 +3,42 @@
 #include "SDL.h"
 #include "SDL_image.h"
 
-struct sdl_deleter
-{
-	void operator()(SDL_Window* p) const { SDL_DestroyWindow(p); }
-	void operator()(SDL_Renderer* p) const { SDL_DestroyRenderer(p); }
-	void operator()(SDL_Texture* p) const { SDL_DestroyTexture(p); }
-};
+
+void sdl_deleter::operator()(SDL_Window* p) const { SDL_DestroyWindow(p); }
+void sdl_deleter::operator()(SDL_Renderer* p) const { SDL_DestroyRenderer(p); }
+void sdl_deleter::operator()(SDL_Texture* p) const { SDL_DestroyTexture(p); }
 
 SDL_Renderer* MTSTexture::s_renderer = 0;
 
 MTSTexture::MTSTexture(const int width, const int height)
 {
-	m_width = width;
-	m_height = height;
+	if (!checkRenderer()) return;
 	SDL_Texture* texture_ptr = SDL_CreateTexture(s_renderer,
 		SDL_PIXELFORMAT_RGBA8888,
 		SDL_TEXTUREACCESS_TARGET,
-		m_width, m_height);
-	m_SDLtexture = std::shared_ptr<SDL_Texture>(texture_ptr, sdl_deleter());
+		width, height);
+	m_texture_ptr = std::shared_ptr<SDL_Texture>(texture_ptr, sdl_deleter());
 }
 
 MTSTexture::MTSTexture(const char* filename, const int width, const int height)
 {
-	SDL_ClearError();
+	if (!checkRenderer()) return;
 	SDL_Texture* texture_ptr = IMG_LoadTexture(s_renderer, filename);
 	if (texture_ptr) {
-		SDL_QueryTexture(texture_ptr, NULL, NULL, &m_width, &m_height);
-		bool needResize = bool(width && height) && (m_width != width) && (m_height != height);
+		int t_width = 0;
+		int t_height = 0;
+		SDL_QueryTexture(texture_ptr, NULL, NULL, &t_width, &t_height);
+		bool needResize = bool(width && height) && (t_width != width) && (t_height != height);
 		if (needResize)
 		{
-			m_width = width;
-			m_height = height;
-			const SDL_Rect dstRect = { 0, 0, m_width, m_height };
+			t_width = width;
+			t_height = height;
+			const SDL_Rect dstRect = { 0, 0, t_width, t_height };
 
 			SDL_Texture* resizedTexture = SDL_CreateTexture(s_renderer,
 				SDL_PIXELFORMAT_RGBA8888,
 				SDL_TEXTUREACCESS_TARGET,
-				m_width, m_height);
+				t_width, t_height);
 			SDL_SetRenderTarget(s_renderer, resizedTexture);
 			SDL_RenderCopy(s_renderer, texture_ptr, NULL, &dstRect);
 			SDL_SetRenderTarget(s_renderer, NULL);
@@ -55,9 +54,9 @@ MTSTexture::MTSTexture(const char* filename, const int width, const int height)
 		texture_ptr = SDL_CreateTexture(s_renderer,
 			SDL_PIXELFORMAT_RGBA8888,
 			SDL_TEXTUREACCESS_TARGET,
-			m_width, m_height);
+			width, height);
 	}
-	m_SDLtexture = std::shared_ptr<SDL_Texture>(texture_ptr, sdl_deleter());
+	m_texture_ptr = std::shared_ptr<SDL_Texture>(texture_ptr, sdl_deleter());
 }
 
 void MTSTexture::setRenderer(SDL_Renderer* renderer)
@@ -65,8 +64,14 @@ void MTSTexture::setRenderer(SDL_Renderer* renderer)
 	s_renderer = renderer;
 }
 
+bool MTSTexture::checkRenderer()
+{
+	return bool(s_renderer);
+}
+
 void MTSTexture::copyToRenderer(const Rect* src, const Rect* dst)
 {
+	if (!checkRenderer()) return;
 	SDL_Rect* src_ptr;
 	SDL_Rect* dst_ptr;
 	if (src) {
@@ -85,15 +90,23 @@ void MTSTexture::copyToRenderer(const Rect* src, const Rect* dst)
 	{
 		dst_ptr = NULL;
 	}
-	SDL_ClearError();
-	int res = SDL_RenderCopy(s_renderer, m_SDLtexture.get(), src_ptr, dst_ptr);
-	if (res < 0)
-		const char* err = SDL_GetError();
+	SDL_RenderCopy(s_renderer, m_texture_ptr.get(), src_ptr, dst_ptr);
 	
+}
+
+void MTSTexture::copyToRenderer(const int x, const int y)
+{
+	if (!checkRenderer()) return;
+	SDL_Rect dstRect = {};
+	dstRect.x = x;
+	dstRect.y = y;
+	SDL_QueryTexture(m_texture_ptr.get(), NULL, NULL, &dstRect.w, &dstRect.h);
+	SDL_RenderCopy(s_renderer, m_texture_ptr.get(), NULL, &dstRect);
 }
 
 void MTSTexture::copyToTexture(MTSTexture& otherTexture, const Rect* src, const Rect* dst)
 {
+	if (!checkRenderer()) return;
 	SDL_Rect* src_ptr;
 	SDL_Rect* dst_ptr;
 	if (src) {
@@ -113,15 +126,15 @@ void MTSTexture::copyToTexture(MTSTexture& otherTexture, const Rect* src, const 
 		dst_ptr = 0;
 	}
 
-	SDL_SetTextureBlendMode(otherTexture.m_SDLtexture.get(), SDL_BLENDMODE_BLEND);
-	SDL_SetRenderTarget(s_renderer, otherTexture.m_SDLtexture.get());
-	SDL_RenderCopy(s_renderer, this->m_SDLtexture.get(), src_ptr, dst_ptr);
+	SDL_SetTextureBlendMode(otherTexture.m_texture_ptr.get(), SDL_BLENDMODE_BLEND);
+	SDL_SetRenderTarget(s_renderer, otherTexture.m_texture_ptr.get());
+	SDL_RenderCopy(s_renderer, this->m_texture_ptr.get(), src_ptr, dst_ptr);
 	SDL_SetRenderTarget(s_renderer, NULL);
 }
 
 bool MTSTexture::isEmpty() const
 {
-	if (!m_SDLtexture)
+	if (!m_texture_ptr)
 		return true;
 	else
 		return false;
@@ -129,10 +142,14 @@ bool MTSTexture::isEmpty() const
 
 int MTSTexture::getWidth() const
 {
-	return m_width;
+	int t_width = 0;
+	SDL_QueryTexture(m_texture_ptr.get(), NULL, NULL, &t_width, NULL);
+	return t_width;
 }
 
 int MTSTexture::getHeight() const
 {
-	return m_height;
+	int t_height = 0;
+	SDL_QueryTexture(m_texture_ptr.get(), NULL, NULL, NULL, &t_height);
+	return t_height;
 }

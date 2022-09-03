@@ -6,10 +6,17 @@ struct Rect {
 	int w, h;
 };
 
+
 struct SDL_Renderer;
 struct SDL_Texture;
+struct SDL_Window;
 
-struct sdl_deleter;
+struct sdl_deleter
+{
+	void operator()(SDL_Window* p) const;
+	void operator()(SDL_Renderer* p) const;
+	void operator()(SDL_Texture* p) const;
+};
 
 
 class MTSTexture
@@ -26,7 +33,9 @@ public:
 	MTSTexture(const char* filename, const int width=0, const int height=0);
 	
 	static void setRenderer(SDL_Renderer* renderer);
+	static bool checkRenderer();
 	void copyToRenderer(const Rect* src, const Rect* dst);
+	void copyToRenderer(const int x, const int y);
 	void copyToTexture(MTSTexture& otherTexture, const Rect* src, const Rect* dst);
 
 	bool isEmpty() const;
@@ -34,12 +43,7 @@ public:
 	int getHeight() const;
 
 	
-
-
-private:
+protected:
 	static SDL_Renderer* s_renderer;
-	//SDL_Texture* m_SDLtexture = nullptr;
-	std::shared_ptr<SDL_Texture> m_SDLtexture = nullptr;
-	int m_width = 0;
-	int m_height = 0;
+	std::shared_ptr<SDL_Texture> m_texture_ptr = nullptr;
 };
