@@ -1,12 +1,11 @@
 #include "Tetris.h"
 
 
-Tetris::Tetris(int rows, int cols, int left, int top, int blockSize)
+Tetris::Tetris(const SDL_Rect& rect, const int rows, const int cols, const int blockSize)
 {
+	this->m_Rect = SDL_Rect(rect);
 	this->m_iRows = rows;
 	this->m_iCols = cols;
-	this->m_ilLeft = left;
-	this->m_iTop = top;
 	this->m_iBlockSize = blockSize;
 
 	for (int i = 0; i < rows; i++) {
@@ -22,6 +21,7 @@ Tetris::Tetris(int rows, int cols, int left, int top, int blockSize)
 
 void Tetris::init()
 {
+	m_bRunning = true;
 	// refresh blocks data
 	for (int i = 0; i < m_vec2dGrid.size(); i++) {
 		for (int j = 0; j < m_vec2dGrid[i].size(); j++) {
@@ -31,7 +31,7 @@ void Tetris::init()
 	playerBlock = PlayerBlock();
 }
 
-void Tetris::clean()
+void Tetris::quit()
 {
 	playerBlock.clean();
 }
@@ -41,10 +41,12 @@ void Tetris::draw()
 	// get blocks texture
 	MTSTexture* m_IMGS = Block::getIMGs();
 	
+	int margin_left = (m_Rect.x + m_Rect.w - m_iCols * m_iBlockSize) / 2;
+	int margin_top = 10;
 	
 	// render player block
-	playerBlock.pCur->draw(m_ilLeft, m_iTop, m_iBlockSize);
-	playerBlock.pNext->draw(m_ilLeft + (m_iCols + 8) * m_iBlockSize, m_iTop, m_iBlockSize);
+	playerBlock.pCur->draw(margin_left, margin_top, m_iBlockSize);
+	playerBlock.pNext->draw(margin_left + (m_iCols + 4) * m_iBlockSize, margin_top, m_iBlockSize);
 
 	SDL_Rect dstRect = {};
 	dstRect.w = m_iBlockSize;
@@ -52,33 +54,74 @@ void Tetris::draw()
 	// render frame
 	for (int i = 0; i < m_iRows; i++) {
 		// render line by line
-		dstRect.y = m_iTop + i * m_iBlockSize;
+		dstRect.y = margin_top + i * m_iBlockSize;
 
 		// render grey block wall in left
-		dstRect.x = m_ilLeft - m_iBlockSize;
+		dstRect.x = margin_left - m_iBlockSize;
 		m_IMGS[0].copyToRenderer(NULL, &dstRect);
 
 		// render grey block wall in right
-		dstRect.x = m_ilLeft + m_iCols * m_iBlockSize;
+		dstRect.x = margin_left + m_iCols * m_iBlockSize;
 		m_IMGS[0].copyToRenderer(NULL, &dstRect);
 
 		for (int j = 0; j < m_iCols; j++) {
 			if (m_vec2dGrid[i][j] == 0) continue;
-			dstRect.x = m_ilLeft + j * m_iBlockSize;
+			dstRect.x = margin_left + j * m_iBlockSize;
 			m_IMGS[m_vec2dGrid[i][j]].copyToRenderer(NULL, &dstRect);
 		}
 	}
 
 	// render bottom
-	dstRect.y = m_iTop + m_iRows * m_iBlockSize;
+	dstRect.y = margin_top + m_iRows * m_iBlockSize;
 	for (int j = -1; j < m_iCols + 1; j++) {
-		dstRect.x = m_ilLeft + j * m_iBlockSize;
+		dstRect.x = margin_left + j * m_iBlockSize;
 		m_IMGS[0].copyToRenderer(NULL, &dstRect);
 	}
 
 	// render label
 	m_labelScore.setText("Score: " + std::to_string(m_iScore));
-	m_labelScore.copyToRenderer(m_ilLeft + m_iCols * m_iBlockSize + 10, m_iTop + m_iRows * m_iBlockSize / 2, Align::LEFT);
+	m_labelScore.copyToRenderer(margin_left + (m_iCols + 2) * m_iBlockSize, margin_top + m_iRows * m_iBlockSize / 2, Align::LEFT);
+}
+
+void Tetris::update()
+{
+	if (m_bRunning) {
+		drop(playerBlock);
+		clearLine();
+		for (int value : m_vec2dGrid[1]) {
+			if (value) {
+				m_bRunning = false;
+				return;
+			}
+		}
+	}
+	
+}
+
+void Tetris::handleEvent(SDL_Event& event)
+{
+	switch (event.type)
+	{
+	case SDL_KEYDOWN:
+		switch (event.key.keysym.sym)
+		{
+		case SDLK_LEFT:
+			moveLeftRight(playerBlock, -1);
+			break;
+		case SDLK_RIGHT:
+			moveLeftRight(playerBlock, 1);
+			break;
+		case SDLK_UP:
+			rotate(playerBlock);
+			break;
+		case SDLK_DOWN:
+			playerBlock.unlockControl();
+			break;
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 void Tetris::drop(PlayerBlock &pBlock)

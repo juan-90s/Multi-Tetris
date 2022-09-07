@@ -3,17 +3,21 @@
 #include <stdlib.h>
 #include <iostream>
 #include "SDL_image.h"
+#include "Tetris.h"
+#include "MTSSceneManager.h"
+
 
 
 namespace {
-	const int SPEED_NORMAL = 100;  // ms
+	const int FPS = 60;
+	const int RENDER_DELAY = 1000 / FPS;
 }
 
 Game::Game()
 {
 	m_iWidth = 960;
 	m_iHeight = 720;
-	m_iDelay = SPEED_NORMAL;
+	m_iDelay = RENDER_DELAY;
 	m_bUpdate = false;
 	// initialize SDL window and renderer
 	bool isSDLinited = SDL_Init(SDL_INIT_EVERYTHING) >= 0;
@@ -30,7 +34,6 @@ Game::Game()
 		if (m_gWindow != 0) {
 			m_gRenderer = SDL_CreateRenderer(m_gWindow, -1, 0);
 			MTSTexture::setRenderer(m_gRenderer);
-			m_Tetris = Tetris(20, 10, 200, 40, 32);
 		}
 	}
 	else {
@@ -45,7 +48,9 @@ void Game::play()
 {
 	// config random seed
 	srand((unsigned int)time(0));
-	m_Tetris.init();
+	SDL_Rect rect = {0, 0, m_iWidth, m_iHeight};
+	MTSSceneManager::pushState(new Tetris(rect, 20, 10, 32));
+	MTSSceneManager::getCurrent()->init();
 	bg = MTSTexture("assets/background.png");
 	int timer = 0;
 	while (inputEvent()) {
@@ -53,15 +58,13 @@ void Game::play()
 		timer += getDelay();
 		if (timer > m_iDelay) {
 			timer = 0;
-			m_Tetris.drop(m_Tetris.player(1));
 			m_bUpdate = true;
 		}
 
 		if (m_bUpdate) {
 			m_bUpdate = false;
-			// update screen
+			MTSSceneManager::getCurrent()->update();
 			render();
-			m_Tetris.clearLine();
 		}
 	}
 
@@ -72,13 +75,12 @@ void Game::render()
 {
 	SDL_RenderClear(m_gRenderer);
 	bg.copyToRenderer(nullptr, nullptr);
-	m_Tetris.draw();
+	MTSSceneManager::getCurrent()->draw();
 	SDL_RenderPresent(m_gRenderer);
 }
 
 void Game::quit()
 {
-	m_Tetris.clean();
 	SDL_DestroyRenderer(m_gRenderer);
 	SDL_DestroyWindow(m_gWindow);
 	SDL_Quit();
@@ -88,34 +90,7 @@ bool Game::inputEvent()
 {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
-		switch (event.type)
-		{
-		case SDL_QUIT:
-			return false;
-
-		case SDL_KEYDOWN:
-			switch (event.key.keysym.sym)
-			{
-			case SDLK_LEFT:
-				m_Tetris.moveLeftRight(m_Tetris.player(1), -1);
-				m_bUpdate = true;
-				break;
-			case SDLK_RIGHT:
-				m_Tetris.moveLeftRight(m_Tetris.player(1), 1);
-				m_bUpdate = true;
-				break;
-			case SDLK_UP:
-				m_Tetris.rotate(m_Tetris.player(1));
-				m_bUpdate = true;
-				break;
-			case SDLK_DOWN:
-				m_Tetris.player(1).unlockControl();
-				break;
-			}
-			break;
-		default:
-			break;
-		}
+		MTSSceneManager::getCurrent()->handleEvent(event);
 	}
 	return true;
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "SDL.h"
-#include "Tetris.h"
 #include "MTSTexture.h"
+#include <vector>
 
 class Game
 {
@@ -24,7 +24,6 @@ private:
 	bool m_bUpdate;
 	int m_iDelay;
 
-	Tetris m_Tetris;
 	MTSTexture bg;
 };
 
