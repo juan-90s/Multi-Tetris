@@ -7,6 +7,7 @@ MTSLabel::MTSLabel(const std::string str, const MTSFont& font)
 	m_font = MTSFont(font);
 	SDL_Surface* t_surf_label = TTF_RenderText_Solid(m_font.getFont(), str.c_str(), m_font.getColor());
 	SDL_Texture* texture_ptr = SDL_CreateTextureFromSurface(s_renderer, t_surf_label);
+	SDL_FreeSurface(t_surf_label);
 	m_texture_ptr = std::shared_ptr<SDL_Texture>(texture_ptr, sdl_deleter());
 }
 
@@ -43,5 +44,6 @@ void MTSLabel::setText(const std::string str)
 {
 	SDL_Surface* t_surf_label = TTF_RenderText_Solid(m_font.getFont(), str.c_str(), m_font.getColor());
 	SDL_Texture* texture_ptr = SDL_CreateTextureFromSurface(s_renderer, t_surf_label);
+	SDL_FreeSurface(t_surf_label);
 	m_texture_ptr = std::shared_ptr<SDL_Texture>(texture_ptr, sdl_deleter());
 }
