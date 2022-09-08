@@ -1,6 +1,13 @@
 #include "MTSScene.h"
 #include "MTSSceneManager.h"
 
+void MTSScene::quit()
+{
+	release();
+	if(MTSSceneManager::getCurrent() == this)
+		MTSSceneManager::popState();
+}
+
 void MTSScene::push(MTSScene* pScene)
 {
 	MTSSceneManager::pushState(pScene);

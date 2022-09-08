@@ -31,11 +31,6 @@ void Tetris::init()
 	playerBlock = PlayerBlock();
 }
 
-void Tetris::quit()
-{
-	playerBlock.clean();
-}
-
 void Tetris::draw()
 {
 	// get blocks texture
@@ -91,6 +86,7 @@ void Tetris::update()
 		for (int value : m_vec2dGrid[1]) {
 			if (value) {
 				m_bRunning = false;
+				quit();
 				return;
 			}
 		}
@@ -100,6 +96,8 @@ void Tetris::update()
 
 void Tetris::handleEvent(SDL_Event& event)
 {
+	if(!m_bRunning)
+		return;
 	switch (event.type)
 	{
 	case SDL_KEYDOWN:
@@ -226,14 +224,6 @@ PlayerBlock::PlayerBlock()
 	pNext = std::make_unique<Block>();
 	pCur = std::move(pNext);
 	pNext = std::make_unique<Block>();
-}
-
-void PlayerBlock::clean() 
-{
-	/*delete pNext;
-	delete pCur;*/
-	//pNext.release();
-	//pCur.release();
 }
 
 inline void PlayerBlock::backup()

@@ -9,7 +9,6 @@ class PlayerBlock
 	// TODO: refactor PlayerBlock, current design is not good
 public:
 	PlayerBlock();
-	void clean();
 
 	inline void backup();	// backup current block to backup
 	void recover();			// recover backup to current
@@ -33,7 +32,6 @@ public:
 	Tetris(const SDL_Rect& rect, const int rows, const int cols, const int blockSize);
 
 	void init() override;
-	void quit() override;
 	void draw() override;
 	void update() override;
 	void handleEvent(SDL_Event& event) override;

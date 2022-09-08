@@ -6,11 +6,13 @@
 class MTSScene
 {
 public:
+	MTSScene() = default;
 	virtual void init() {};
-	virtual void quit() {};
+	virtual void release() {};
 	virtual void update() {};
 	virtual void draw() {};
 	virtual void handleEvent(SDL_Event& event ) {};
+	void quit();
 
 protected:
 	void push(MTSScene* pScene);
