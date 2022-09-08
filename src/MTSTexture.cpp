@@ -69,6 +69,13 @@ bool MTSTexture::checkRenderer()
 	return bool(s_renderer);
 }
 
+void MTSTexture::fillRect(const SDL_Rect& rect, SDL_Color color)
+{
+	SDL_SetRenderDrawBlendMode(s_renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawColor(s_renderer, color.r, color.g, color.b, color.a);
+	SDL_RenderFillRect(s_renderer, &rect);
+}
+
 void MTSTexture::copyToRenderer(const SDL_Rect* src, const SDL_Rect* dst)
 {
 	if (!checkRenderer()) return;

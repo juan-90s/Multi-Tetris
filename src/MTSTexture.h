@@ -29,6 +29,8 @@ public:
 	
 	static void setRenderer(SDL_Renderer* renderer);
 	static bool checkRenderer();
+	static void fillRect(const SDL_Rect& rect, SDL_Color color);
+
 	void copyToRenderer(const SDL_Rect* src, const SDL_Rect* dst);
 	void copyToRenderer(const int x, const int y);
 	void copyToTexture(MTSTexture& otherTexture, const SDL_Rect* src, const SDL_Rect* dst);
