@@ -23,5 +23,8 @@ void MTSSceneManager::popState()
 
 MTSScene* MTSSceneManager::getCurrent()
 {
-	return m_vecScene.top().get();
+	if (m_vecScene.empty())
+		return nullptr;
+	else
+		return m_vecScene.top().get();
 }
