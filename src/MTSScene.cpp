@@ -10,6 +10,7 @@ void MTSScene::quit()
 
 void MTSScene::push(MTSScene* pScene)
 {
+	pScene->init();
 	MTSSceneManager::pushState(pScene);
 }
 

@@ -7,6 +7,7 @@ class MTSScene
 {
 public:
 	MTSScene() = default;
+	explicit MTSScene(const SDL_Rect& rect) : m_Rect(rect) {};
 	virtual void init() {};
 	virtual void release() {};
 	virtual void update() {};
@@ -18,6 +19,6 @@ protected:
 	void push(MTSScene* pScene);
 	void jumpto(MTSScene* pScene);
 
-	SDL_Rect m_Rect;
+	SDL_Rect m_Rect = {};
 };
 
