@@ -39,7 +39,7 @@ include_directories(
 )
 
 set(SOURCE_FILES 
-	src/main.cpp src/Game.cpp src/Tetris.cpp src/Block.cpp
+	src/main.cpp src/Game.cpp src/Tetris.cpp src/Block.cpp src/MainMenu.cpp
 	src/MTSFont.cpp src/MTSLabel.cpp src/MTSScene.cpp src/MTSSceneManager.cpp src/MTSTexture.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

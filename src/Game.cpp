@@ -4,6 +4,7 @@
 #include <iostream>
 #include "SDL_image.h"
 #include "Tetris.h"
+#include "MainMenu.h"
 #include "MTSSceneManager.h"
 
 
@@ -49,11 +50,13 @@ void Game::play()
 	// config random seed
 	srand((unsigned int)time(0));
 	SDL_Rect rect = {0, 0, m_iWidth, m_iHeight};
-	MTSSceneManager::pushState(new Tetris(rect, 20, 10, 32));
+	MTSSceneManager::pushState(new MainMenu(rect));
 	MTSSceneManager::getCurrent()->init();
 	bg = MTSTexture("assets/background.png");
 	int timer = 0;
 	while (inputEvent()) {
+		if (MTSSceneManager::getCurrent() == nullptr)
+			break;
 		SDL_Delay(1);
 		timer += getDelay();
 		if (timer > m_iDelay) {
@@ -91,6 +94,15 @@ bool Game::inputEvent()
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		MTSSceneManager::getCurrent()->handleEvent(event);
+		switch (event.type)
+		{
+		case SDL_QUIT:
+			return false;
+			break;
+		
+		default:
+			break;
+		}
 	}
 	return true;
 }
