@@ -4,6 +4,9 @@
 #include "Block.h"
 #include "MTSLabel.h"
 #include "MTSScene.h"
+#include "PauseMenu.h"
+
+
 class PlayerBlock
 {
 	// TODO: refactor PlayerBlock, current design is not good
@@ -21,8 +24,8 @@ public:
 	std::unique_ptr<Block> pNext = nullptr;
 	Block pBak;
 
-	int pSpeedMulti = 20;
-	int pSpeedWindw = 0;
+	int pDelayMulti = 20;
+	int pDelayWindw = 0;
 };
 
 class Tetris : public MTSScene
@@ -38,6 +41,7 @@ public:
 
 	void moveLeftRight(PlayerBlock& pBlock, int offset);
 	void rotate(PlayerBlock& pBlock);
+	void setPause(bool bFlag);
 	
 
 	PlayerBlock& player(const int num);
@@ -49,7 +53,8 @@ private:
 private:
 	PlayerBlock playerBlock;
 
-	bool m_bRunning = 0;
+	bool m_bPause = 0;
+	std::unique_ptr<PauseMenu> m_PauseMenu;
 
 	std::vector< std::vector<int> > m_vec2dGrid;  // store block type(1..7) in 2-d map. 0 means empty
 	int m_iRows = 0;
@@ -57,6 +62,7 @@ private:
 	int m_iBlockSize = 0;
 
 	MTSLabel m_labelScore;
+	MTSLabel m_labelScoreValue;
 
 	int m_iScore = 0;
 };

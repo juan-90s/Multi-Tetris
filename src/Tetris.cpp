@@ -1,4 +1,6 @@
 #include "Tetris.h"
+#include <sstream>
+#include <iomanip>
 
 
 Tetris::Tetris(const SDL_Rect& rect, const int rows, const int cols, const int blockSize)
@@ -15,13 +17,16 @@ Tetris::Tetris(const SDL_Rect& rect, const int rows, const int cols, const int b
 		}
 		m_vec2dGrid.push_back(mapRow);
 	}
-	MTSFont novem("assets/novem___.ttf", 50, {200, 200, 200 });
-	m_labelScore = MTSLabel("SCORE: ", novem);
+	MTSFont font("assets/repetition.ttf", 50, {255, 255, 255 });
+	m_labelScore = MTSLabel("SCORE", font);
+	m_labelScoreValue = MTSLabel("00000", font);
+	m_PauseMenu = std::make_unique<PauseMenu>(rect);
+	m_PauseMenu->init();
+	m_PauseMenu->setNestedGame(this);
 }
 
 void Tetris::init()
 {
-	m_bRunning = true;
 	// refresh blocks data
 	for (int i = 0; i < m_vec2dGrid.size(); i++) {
 		for (int j = 0; j < m_vec2dGrid[i].size(); j++) {
@@ -74,21 +79,32 @@ void Tetris::draw()
 	}
 
 	// render label
-	m_labelScore.setText("Score: " + std::to_string(m_iScore));
-	m_labelScore.copyToRenderer(margin_left + (m_iCols + 2) * m_iBlockSize, margin_top + m_iRows * m_iBlockSize / 2, Align::LEFT);
+	std::ostringstream ss;
+	ss << std::setw(5) << std::setfill('0') << m_iScore;
+	m_labelScoreValue.setText(ss.str());
+	m_labelScore.copyToRenderer(margin_left + (m_iCols + 2) * m_iBlockSize,
+								margin_top + m_iRows * m_iBlockSize / 2,
+								Align::LEFT);
+	m_labelScoreValue.copyToRenderer(margin_left + (m_iCols + 2) * m_iBlockSize,
+									margin_top + m_iRows * m_iBlockSize / 2 + 50,
+									Align::LEFT);
+
+	if (m_bPause) {
+		m_PauseMenu->draw();
+	}
 }
 
 void Tetris::update()
 {
-	if (m_bRunning) {
-		drop(playerBlock);
-		clearLine();
-		for (int value : m_vec2dGrid[1]) {
-			if (value) {
-				m_bRunning = false;
-				quit();
-				return;
-			}
+	if (m_bPause)
+		return;
+	drop(playerBlock);
+	clearLine();
+	for (int value : m_vec2dGrid[1]) {
+		if (value) {
+			m_bPause = true;
+			quit();
+			return;
 		}
 	}
 	
@@ -96,8 +112,10 @@ void Tetris::update()
 
 void Tetris::handleEvent(SDL_Event& event)
 {
-	if(!m_bRunning)
+	if (m_bPause) {
+		m_PauseMenu->handleEvent(event);
 		return;
+	}
 	switch (event.type)
 	{
 	case SDL_KEYDOWN:
@@ -114,6 +132,9 @@ void Tetris::handleEvent(SDL_Event& event)
 			break;
 		case SDLK_DOWN:
 			playerBlock.unlockControl();
+			break;
+		case SDLK_ESCAPE:
+			setPause(true);
 			break;
 		}
 		break;
@@ -161,6 +182,11 @@ void Tetris::rotate(PlayerBlock& pBlock)
 		// cannot move to destination, recover
 		pBlock.recover();
 	}
+}
+
+void Tetris::setPause(bool bFlag)
+{
+	m_bPause = bFlag;
 }
 
 void Tetris::clearLine()
@@ -236,18 +262,19 @@ void PlayerBlock::recover()
 	*pCur = pBak;
 }
 
-void PlayerBlock::nextNew() {
+void PlayerBlock::nextNew() 
+{
 	pCur = std::move(pNext);
 	pNext = std::make_unique<Block>();
 }
 
 bool PlayerBlock::speedControl()
 {
-	pSpeedWindw = (pSpeedWindw + 1) % pSpeedMulti;
-	return bool(pSpeedWindw);
+	pDelayWindw = (pDelayWindw + 1) % pDelayMulti;
+	return bool(pDelayWindw);
 }
 
 void PlayerBlock::unlockControl()
 {
-	pSpeedWindw = -1;
+	pDelayWindw = -1;
 }
