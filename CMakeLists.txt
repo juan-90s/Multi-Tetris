@@ -39,8 +39,8 @@ include_directories(
 )
 
 set(SOURCE_FILES 
-	src/main.cpp src/Game.cpp src/Tetris.cpp src/Block.cpp src/MainMenu.cpp
-	src/MTSFont.cpp src/MTSLabel.cpp src/MTSScene.cpp src/MTSSceneManager.cpp src/MTSTexture.cpp)
+	src/main.cpp src/Game.cpp src/Tetris.cpp src/Block.cpp src/MainMenu.cpp src/PauseMenu.cpp
+	src/MTSFont.cpp src/MTSLabel.cpp src/MTSScene.cpp src/MTSSceneManager.cpp src/MTSTexture.cpp src/MTSMenu.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${SDL_LIB})

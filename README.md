@@ -4,21 +4,22 @@ A simple Tetris game based on SDL2
 Under Constructing ...
 
 ## Dependencies
-Obviously, you need SDL2 and its extension. 
+Obviously, you need SDL2 and its extension SDL2_image, SDL2_ttf
 ### Mac OS
 ~~~shell
 $ brew install sdl2
 $ brew install sdl2_img
+$ brew install sdl_ttf
 $ brew install zlib
 $ brew install libpng
 ~~~
 ### Linux
 ~~~shell
-$ sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev
+$ sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev
 $ sudo apt install zlib1g libpng-dev
 ~~~
 
-Download FindSDL cmake module from [aminosbh/sdl2-cmake-modules](https://github.com/aminosbh/sdl2-cmake-modules), move the cmake directory into this project's root path. Make sure the path is correct as CMAKE_MODULE_PATH in Cmakelist.
+Download FindSDL cmake module from [aminosbh/sdl2-cmake-modules](https://github.com/aminosbh/sdl2-cmake-modules), move the cmake directory into $PROJECT_PATH/cmake/sdl2/ . Make sure the path is correct as CMAKE_MODULE_PATH in Cmakelist.
 
 ## Build
 You can use cmake on Mac and Linux to build Unix Excutable
