@@ -14,7 +14,7 @@ void MainMenu::release(){
 }
 
 
-void MainMenu::nav_in(){
+void MainMenu::nav_right(){
     switch (m_index)
     {
     case 0:

@@ -14,7 +14,7 @@ void PauseMenu::setNestedGame(Tetris* game)
     m_tetris = game;
 }
 
-void PauseMenu::nav_in()
+void PauseMenu::nav_right()
 {
     switch (m_index)
     {

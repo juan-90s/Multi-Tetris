@@ -10,6 +10,6 @@ public:
 	void init() override;
 	void release() override;
 private:
-	void nav_in();
+	void nav_right() override;
 };
 

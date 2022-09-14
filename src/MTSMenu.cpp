@@ -22,9 +22,10 @@ void MTSMenu::handleEvent(SDL_Event& event)
 		switch (event.key.keysym.sym)
 		{
 		case SDLK_LEFT:
+			nav_left();
 			break;
 		case SDLK_RIGHT:
-			nav_in();
+			nav_right();
 			break;
 		case SDLK_UP:
 			nav_up();
@@ -58,14 +59,6 @@ void MTSMenu::nav_down()
 		
 }
 
-void MTSMenu::nav_in()
-{
-	switch (m_index)
-	{
-	case 0:
-		break;
+void MTSMenu::nav_left(){}
 
-	default:
-		break;
-	}
-}
+void MTSMenu::nav_right(){}

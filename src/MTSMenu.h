@@ -12,7 +12,8 @@ public:
 protected:
     void nav_up();
     void nav_down();
-    virtual void nav_in();
+    virtual void nav_left();
+    virtual void nav_right();
 
     std::vector<MTSLabel> m_vecLabel = {};
     int m_index = 0;
