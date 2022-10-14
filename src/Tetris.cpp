@@ -21,7 +21,8 @@ Tetris::Tetris(const SDL_Rect& rect, const int rows, const int cols, const int b
 	if (playerNum > 1) {
 		for (int i = 0; i < playerNum; i++) {
 			int anchor = ((i + 1) * m_iCols / (playerNum + 1));
-			m_vecPlayers.push_back(PlayerBlock(anchor));
+			BlockColor color = static_cast<BlockColor>(i+1);
+			m_vecPlayers.push_back(PlayerBlock(color, anchor));
 		}
 	}
 	else {
@@ -116,7 +117,6 @@ void Tetris::update()
 {
 	if (m_bPause)
 		return;
-	/*drop(playerBlock);*/
 	for (auto& player : m_vecPlayers) {
 		drop(player);
 	}
@@ -321,15 +321,19 @@ PlayerBlock::PlayerBlock()
 	pNext = std::make_unique<Block>();
 }
 
-PlayerBlock::PlayerBlock(int x)
+PlayerBlock::PlayerBlock(const BlockColor color, const int x)
 {
 	anchorX = x;
+	pColor = color;
 
 	pNext = std::make_unique<Block>();
 	pCur = std::move(pNext);
 	pNext = std::make_unique<Block>();
 
 	pCur->moveLeftRight(anchorX);
+	if (pColor != BlockColor::NoColor) {
+		pCur->setColor(pColor);
+	}
 }
 
 inline void PlayerBlock::backup()
@@ -348,6 +352,9 @@ void PlayerBlock::nextNew()
 	pNext = std::make_unique<Block>();
 
 	pCur->moveLeftRight(anchorX);
+	if (pColor != BlockColor::NoColor) {
+		pCur->setColor(pColor);
+	}
 }
 
 bool PlayerBlock::speedControl()

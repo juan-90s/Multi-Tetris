@@ -12,7 +12,7 @@ class PlayerBlock
 	// TODO: refactor PlayerBlock, current design is not good
 public:
 	PlayerBlock();
-	PlayerBlock(int x);
+	PlayerBlock(const BlockColor color, const int x);
 
 	inline void backup();	// backup current block to backup
 	void recover();			// recover backup to current
@@ -26,6 +26,7 @@ public:
 	Block pBak;
 
 	int anchorX = 0;
+	BlockColor pColor = BlockColor::NoColor;
 
 	int pDelayMulti = 20;
 	int pDelayWindw = 0;

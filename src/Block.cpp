@@ -2,6 +2,15 @@
 #include <stdlib.h>
 
 MTSTexture Block::m_IMGS[8] = {};
+int Block::m_shapes[7][4] = {
+	1,3,5,7,	// 'I'
+	2,4,5,7,	// 'S'
+	3,5,4,6,	// flip 'S'
+	3,5,4,7,	// 'T'
+	2,3,5,7,	// 'L'
+	3,5,7,6,	// flip 'L'
+	2,3,4,5,	// square
+};;
 int Block::m_size = 32;
 
 Block::Block()
@@ -17,22 +26,11 @@ Block::Block()
 		}
 	}
 
-	int blockShapes[7][4] = {
-	1,3,5,7,	// 'I'
-	2,4,5,7,	// 'S'
-	3,5,4,6,	// flip 'S'
-	3,5,4,7,	// 'T'
-	2,3,5,7,	// 'L'
-	3,5,7,6,	// flip 'L'
-	2,3,4,5,	// square
-	};
-
-
 	// randomly generate one type of blocks
 	m_blockType = 1 + (int)(7.0 * (rand() / (RAND_MAX + 1.0)));	// 1..7
 	// intialize basicBlocks' point (begin from 0)
 	for (int i = 0; i < 4; i++) {
-		int value = blockShapes[m_blockType - 1][i];
+		int value = m_shapes[m_blockType - 1][i];
 		m_blockPoints[i].row = value / 2;
 		m_blockPoints[i].col = value % 2;
 	}
@@ -85,6 +83,24 @@ void Block::draw(int leftMargin, int topMargin, int size)
 int Block::getType() const
 {
 	return m_blockType;
+}
+
+void Block::setType(const int type)
+{
+	if (type > 0 && type < 8) {
+		m_blockType = type;
+		for (int i = 0; i < 4; i++) {
+			int value = m_shapes[m_blockType - 1][i];
+			m_blockPoints[i].row = value / 2;
+			m_blockPoints[i].col = value % 2;
+		}
+	}
+}
+
+void Block::setColor(const BlockColor color)
+{
+	int texture_index = (int)color;
+	m_blockIMG = m_IMGS[texture_index];
 }
 
 Point* Block::getPoints()

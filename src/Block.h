@@ -7,6 +7,10 @@ struct Point {
 	int col;
 };
 
+enum class BlockColor {
+	NoColor, Red, Yellow, Green, Blue, Orange, Cyan, Purple
+};
+
 class Block
 {
 public:
@@ -18,6 +22,9 @@ public:
 	void draw(int leftMargin, int topMargin, int size=m_size);
 
 	int getType() const;
+	void setType(const int type);
+	void setColor(const BlockColor color);
+
 	Point* getPoints();
 	static MTSTexture* getIMGs();
 
@@ -29,6 +36,7 @@ private:
 	MTSTexture m_blockIMG;
 
 	static MTSTexture m_IMGS[8];  // all 1+7 color block, the extra one is wall block
+	static int m_shapes[7][4];
 	static int m_size;
 };
 
