@@ -3,7 +3,7 @@
 #include <iomanip>
 
 
-Tetris::Tetris(const SDL_Rect& rect, const int rows, const int cols, const int blockSize)
+Tetris::Tetris(const SDL_Rect& rect, const int rows, const int cols, const int blockSize, const unsigned int playerNum)
 {
 	this->m_Rect = SDL_Rect(rect);
 	this->m_iRows = rows;
@@ -17,6 +17,19 @@ Tetris::Tetris(const SDL_Rect& rect, const int rows, const int cols, const int b
 		}
 		m_vec2dGrid.push_back(mapRow);
 	}
+
+	if (playerNum > 1) {
+		for (int i = 0; i < playerNum; i++) {
+			int anchor = ((i + 1) * m_iCols / (playerNum + 1));
+			m_vecPlayers.push_back(PlayerBlock(anchor));
+		}
+	}
+	else {
+		m_vecPlayers.push_back(PlayerBlock());
+	}
+
+	
+
 	MTSFont font("assets/repetition.ttf", 50, {255, 255, 255 });
 	m_labelScore = MTSLabel("SCORE", font);
 	m_labelScoreValue = MTSLabel("00000", font);
@@ -33,7 +46,7 @@ void Tetris::init()
 			m_vec2dGrid[i][j] = 0;
 		}
 	}
-	playerBlock = PlayerBlock();
+	//playerBlock = PlayerBlock();
 }
 
 void Tetris::draw()
@@ -45,8 +58,13 @@ void Tetris::draw()
 	int margin_top = 10;
 	
 	// render player block
-	playerBlock.pCur->draw(margin_left, margin_top, m_iBlockSize);
-	playerBlock.pNext->draw(margin_left + (m_iCols + 4) * m_iBlockSize, margin_top, m_iBlockSize);
+	for (auto i = 0; i < m_vecPlayers.size(); i++) {
+		m_vecPlayers[i].pCur->draw(margin_left, margin_top, m_iBlockSize);
+		m_vecPlayers[i].pNext->draw(margin_left + (m_iCols + 4) * m_iBlockSize, margin_top + 5 * i * m_iBlockSize, m_iBlockSize);
+	}
+
+	//playerBlock.pCur->draw(margin_left, margin_top, m_iBlockSize);
+	//playerBlock.pNext->draw(margin_left + (m_iCols + 4) * m_iBlockSize, margin_top, m_iBlockSize);
 
 	SDL_Rect dstRect = {};
 	dstRect.w = m_iBlockSize;
@@ -98,7 +116,10 @@ void Tetris::update()
 {
 	if (m_bPause)
 		return;
-	drop(playerBlock);
+	/*drop(playerBlock);*/
+	for (auto& player : m_vecPlayers) {
+		drop(player);
+	}
 	clearLine();
 	for (int value : m_vec2dGrid[1]) {
 		if (value) {
@@ -116,25 +137,42 @@ void Tetris::handleEvent(SDL_Event& event)
 		m_PauseMenu->handleEvent(event);
 		return;
 	}
+	int playerNum = m_vecPlayers.size();
+	auto& player1 = m_vecPlayers[0];
+	auto& player2 = playerNum >= 2 ? m_vecPlayers[1] : m_vecPlayers[0];
+
 	switch (event.type)
 	{
 	case SDL_KEYDOWN:
 		switch (event.key.keysym.sym)
 		{
 		case SDLK_LEFT:
-			moveLeftRight(playerBlock, -1);
+			moveLeftRight(player1, -1);
 			break;
 		case SDLK_RIGHT:
-			moveLeftRight(playerBlock, 1);
+			moveLeftRight(player1, 1);
 			break;
 		case SDLK_UP:
-			rotate(playerBlock);
+			rotate(player1);
 			break;
 		case SDLK_DOWN:
-			playerBlock.unlockControl();
+			player1.unlockControl();
 			break;
 		case SDLK_ESCAPE:
 			setPause(true);
+			break;
+
+		case SDLK_a:
+			moveLeftRight(player2, -1);
+			break;
+		case SDLK_d:
+			moveLeftRight(player2, 1);
+			break;
+		case SDLK_w:
+			rotate(player2);
+			break;
+		case SDLK_s:
+			player2.unlockControl();
 			break;
 		}
 		break;
@@ -151,7 +189,12 @@ void Tetris::drop(PlayerBlock &pBlock)
 	pBlock.backup();
 	pBlock.pCur->drop();
 
-	if (!checkBlock(pBlock.pCur.get())) {
+	if (!checkInPlayers(pBlock.pCur.get())) {
+		// cannot move to destination, recover
+		pBlock.recover();
+	}
+
+	if (!checkInMap(pBlock.pCur.get())) {
 		// touch botton or other blocks, fix
 		fixBlock(&pBlock.pBak);
 		pBlock.nextNew();
@@ -163,7 +206,7 @@ void Tetris::moveLeftRight(PlayerBlock& pBlock, const int offset)
 	pBlock.backup();
 	pBlock.pCur->moveLeftRight(offset);
 
-	if (!checkBlock(pBlock.pCur.get())) {
+	if (!checkInMap(pBlock.pCur.get()) || !checkInPlayers(pBlock.pCur.get())) {
 		// cannot move to destination, recover
 		pBlock.recover();
 	}
@@ -178,7 +221,7 @@ void Tetris::rotate(PlayerBlock& pBlock)
 	pBlock.backup();
 	pBlock.pCur->rotate();
 
-	if (!checkBlock(pBlock.pCur.get())) {
+	if (!checkInMap(pBlock.pCur.get()) || !checkInPlayers(pBlock.pCur.get())) {
 		// cannot move to destination, recover
 		pBlock.recover();
 	}
@@ -221,10 +264,14 @@ void Tetris::clearLine()
 
 PlayerBlock& Tetris::player(const int num)
 {
-	return playerBlock;
+	//return playerBlock;
+	if (num < m_vecPlayers.size())
+		return m_vecPlayers[num];
+	else
+		return m_vecPlayers[0];
 }
 
-bool Tetris::checkBlock(Block* block) const
+bool Tetris::checkInMap(Block* block) const
 {
 	Point* points = block->getPoints();
 	for (int i = 0; i < 4; i++) {
@@ -232,6 +279,28 @@ bool Tetris::checkBlock(Block* block) const
 			points[i].col < 0 || points[i].col >= m_iCols ||
 			m_vec2dGrid[points[i].row][points[i].col] != 0)
 			return false; 
+	}
+
+	return true;
+}
+
+bool Tetris::checkInPlayers(Block* block) const 
+{
+	if (m_vecPlayers.size() == 1)
+		return true;
+	Point* points = block->getPoints();
+	for (auto& player : m_vecPlayers) {
+		if (block == player.pCur.get()) {
+			continue;
+		}
+		Point* points2 = player.pCur->getPoints();
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (points[i].col == points2[j].col && points[i].row == points2[j].row)
+					return false;
+			}
+		}
+
 	}
 	return true;
 }
@@ -252,6 +321,17 @@ PlayerBlock::PlayerBlock()
 	pNext = std::make_unique<Block>();
 }
 
+PlayerBlock::PlayerBlock(int x)
+{
+	anchorX = x;
+
+	pNext = std::make_unique<Block>();
+	pCur = std::move(pNext);
+	pNext = std::make_unique<Block>();
+
+	pCur->moveLeftRight(anchorX);
+}
+
 inline void PlayerBlock::backup()
 {
 	pBak = *pCur;
@@ -266,6 +346,8 @@ void PlayerBlock::nextNew()
 {
 	pCur = std::move(pNext);
 	pNext = std::make_unique<Block>();
+
+	pCur->moveLeftRight(anchorX);
 }
 
 bool PlayerBlock::speedControl()

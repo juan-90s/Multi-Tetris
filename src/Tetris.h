@@ -12,6 +12,7 @@ class PlayerBlock
 	// TODO: refactor PlayerBlock, current design is not good
 public:
 	PlayerBlock();
+	PlayerBlock(int x);
 
 	inline void backup();	// backup current block to backup
 	void recover();			// recover backup to current
@@ -24,6 +25,8 @@ public:
 	std::unique_ptr<Block> pNext = nullptr;
 	Block pBak;
 
+	int anchorX = 0;
+
 	int pDelayMulti = 20;
 	int pDelayWindw = 0;
 };
@@ -32,7 +35,7 @@ class Tetris : public MTSScene
 {
 public:
 	Tetris() = default;
-	Tetris(const SDL_Rect& rect, const int rows, const int cols, const int blockSize);
+	Tetris(const SDL_Rect& rect, const int rows, const int cols, const int blockSize, const unsigned int playerNum = 1);
 
 	void init() override;
 	void draw() override;
@@ -48,10 +51,12 @@ public:
 private:
 	void drop(PlayerBlock& pBlock);
 	void clearLine();
-	bool checkBlock(Block* block) const;
+	bool checkInMap(Block* block) const;
+	bool checkInPlayers(Block* block) const;
 	void fixBlock(Block* block);
 private:
-	PlayerBlock playerBlock;
+	//PlayerBlock playerBlock;
+	std::vector<PlayerBlock> m_vecPlayers;
 
 	bool m_bPause = 0;
 	std::unique_ptr<PauseMenu> m_PauseMenu;
