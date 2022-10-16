@@ -15,14 +15,14 @@ class Block
 {
 public:
 	Block();
-	~Block();
+	~Block() = default;
 	void drop();
 	void moveLeftRight(int offset);
 	void rotate();
 	void draw(int leftMargin, int topMargin, int size=m_size);
 
 	int getType() const;
-	void setType(const int type);
+	void setShape(const int type);
 	void setColor(const BlockColor color);
 
 	Point* getPoints();
@@ -31,7 +31,9 @@ public:
 	Block& operator=(const Block& other);
 
 private:
-	int m_blockType;	// block type, differently shaped pieces
+	void loadIMGS();
+
+	int m_blockColor;	// block type, indicate the color
 	Point m_blockPoints[4];  // coorinate of blocks in pieces
 	MTSTexture m_blockIMG;
 

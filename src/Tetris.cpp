@@ -308,6 +308,7 @@ bool Tetris::checkInPlayers(Block* block) const
 void Tetris::fixBlock(Block* block)
 {	
 	Point* points = block->getPoints();
+	// bad solution
 	for (int i = 0; i < 4; i++) {
 		// mark type value on map
 		m_vec2dGrid[points[i].row][points[i].col] = block->getType();
@@ -332,6 +333,7 @@ PlayerBlock::PlayerBlock(const BlockColor color, const int x)
 
 	pCur->moveLeftRight(anchorX);
 	if (pColor != BlockColor::NoColor) {
+		pNext->setColor(pColor);
 		pCur->setColor(pColor);
 	}
 }
@@ -353,6 +355,7 @@ void PlayerBlock::nextNew()
 
 	pCur->moveLeftRight(anchorX);
 	if (pColor != BlockColor::NoColor) {
+		pNext->setColor(pColor);
 		pCur->setColor(pColor);
 	}
 }

@@ -56,7 +56,6 @@ private:
 	bool checkInPlayers(Block* block) const;
 	void fixBlock(Block* block);
 private:
-	//PlayerBlock playerBlock;
 	std::vector<PlayerBlock> m_vecPlayers;
 
 	bool m_bPause = 0;
