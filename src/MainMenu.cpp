@@ -18,7 +18,7 @@ void MainMenu::nav_right(){
     switch (m_index)
     {
     case 0:
-        push(new Tetris(m_Rect, 20, 10, 32, 1));
+        push(new Tetris(m_Rect, 20, 10, 32, 2));
         break;
     
     case 1:
