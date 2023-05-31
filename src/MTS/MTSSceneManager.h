@@ -11,6 +11,6 @@ public:
 	static void popState();
 	static MTSScene* getCurrent();
 private:
-	static std::stack<std::unique_ptr<MTSScene>> m_vecScene;
+	static std::stack<std::unique_ptr<MTSScene>> m_stackScene;
 };
 
