@@ -6,16 +6,17 @@ class MTSMenu :
     public MTSScene
 {
 public:
+    
+
     using MTSScene::MTSScene;
     void draw() override;
     void handleEvent(SDL_Event& event) override;
 protected:
-    void nav_up();
-    void nav_down();
-    virtual void nav_left();
-    virtual void nav_right();
+    virtual void nav_up();
+    virtual void nav_down();
+    virtual void enter_select() = 0;
 
     std::vector<MTSLabel> m_vecLabel = {};
-    int m_index = 0;
+    unsigned m_index = 0;
 };
 

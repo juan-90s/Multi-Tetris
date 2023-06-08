@@ -1,4 +1,5 @@
 #include "MTSMenu.h"
+#include "MTSUtility.h"
 
 void MTSMenu::draw()
 {
@@ -7,6 +8,7 @@ void MTSMenu::draw()
 	int y = 150;
 	for (int i = 0; i < m_vecLabel.size(); i++) {
 		if (i == m_index)
+			// current active label
 			m_vecLabel[i].copyToRenderer(x + 20, y, Align::LEFT);
 		else
 			m_vecLabel[i].copyToRenderer(x, y, Align::LEFT);
@@ -22,10 +24,9 @@ void MTSMenu::handleEvent(SDL_Event& event)
 		switch (event.key.keysym.sym)
 		{
 		case SDLK_LEFT:
-			nav_left();
 			break;
 		case SDLK_RIGHT:
-			nav_right();
+			enter_select();
 			break;
 		case SDLK_UP:
 			nav_up();
@@ -42,23 +43,12 @@ void MTSMenu::handleEvent(SDL_Event& event)
 
 void MTSMenu::nav_up()
 {
-	int size = (int)m_vecLabel.size();
-	if (size) {
-		int mod = (m_index - 1) % size;
-		m_index = (mod < 0) ? mod + size : mod;
-	}
+	unsigned size = static_cast<unsigned>(m_vecLabel.size());
+	scroll(m_index, size, -1);
 }
 
 void MTSMenu::nav_down()
 {
-	int size = (int)m_vecLabel.size();
-	if (size) {
-		int mod = (m_index + 1) % size;
-		m_index = (mod < 0) ? mod + size : mod;
-	}
-		
+	unsigned size = static_cast<unsigned>(m_vecLabel.size());
+	scroll(m_index, size, 1);
 }
-
-void MTSMenu::nav_left(){}
-
-void MTSMenu::nav_right(){}

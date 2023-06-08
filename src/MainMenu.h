@@ -8,8 +8,7 @@ class MainMenu :
 public:
 	using MTSMenu::MTSMenu;
 	void init() override;
-	void release() override;
 private:
-	void nav_right() override;
+	void enter_select() override;
 };
 

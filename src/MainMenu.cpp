@@ -1,4 +1,5 @@
 #include "MainMenu.h"
+#include "MainOption.h"
 #include "Tetris.h"
 
 
@@ -9,12 +10,7 @@ void MainMenu::init(){
     m_vecLabel.push_back(MTSLabel("QUIT", font));
 }
 
-void MainMenu::release(){
-
-}
-
-
-void MainMenu::nav_right(){
+void MainMenu::enter_select(){
     switch (m_index)
     {
     case 0:
@@ -22,7 +18,7 @@ void MainMenu::nav_right(){
         break;
     
     case 1:
-        
+        push(new MainOption(m_Rect));
         break;
     
     case 2:
