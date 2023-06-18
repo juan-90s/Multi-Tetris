@@ -1,12 +1,17 @@
 #include "PauseMenu.h"
+#include "MainOption.h"
+#include "MTSOptionView.h"
 #include "Tetris.h"
+#include "Config.h"
 
 void PauseMenu::init()
 {
 	MTSFont font("assets/repetition.ttf", 50, { 255, 255, 255 });
-	m_vecLabel.push_back(MTSLabel("RESUME", font));
-	m_vecLabel.push_back(MTSLabel("OPTION", font));
-	m_vecLabel.push_back(MTSLabel("QUIT", font));
+    m_view->setPos(100, 100);
+    addCell(std::make_shared<MTSLabel>("RESUME", font));
+    addCell(std::make_shared<MTSLabel>("OPTION", font));
+    addCell(std::make_shared<MTSLabel>("QUIT", font));
+    activate(0);
 }
 
 void PauseMenu::setNestedGame(Tetris* game)
@@ -14,7 +19,7 @@ void PauseMenu::setNestedGame(Tetris* game)
     m_tetris = game;
 }
 
-void PauseMenu::enter_select()
+void PauseMenu::press_enter()
 {
     switch (m_index)
     {
@@ -23,7 +28,7 @@ void PauseMenu::enter_select()
         break;
 
     case 1:
-
+        push(new MainOption(m_view->getRect()));
         break;
 
     case 2:

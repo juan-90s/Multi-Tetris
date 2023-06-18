@@ -59,6 +59,14 @@ MTSTexture::MTSTexture(const char* filename, const int width, const int height)
 	m_texture_ptr = std::shared_ptr<SDL_Texture>(texture_ptr, sdl_deleter());
 }
 
+MTSTexture::MTSTexture(TTF_Font* font, const char* text, SDL_Color color)
+{
+	SDL_Surface* t_surf_label = TTF_RenderText_Solid(font, text, color);
+	SDL_Texture* texture_ptr = SDL_CreateTextureFromSurface(s_renderer, t_surf_label);
+	SDL_FreeSurface(t_surf_label);
+	m_texture_ptr = std::shared_ptr<SDL_Texture>(texture_ptr, sdl_deleter());
+}
+
 void MTSTexture::setRenderer(SDL_Renderer* renderer)
 {
 	s_renderer = renderer;
@@ -76,14 +84,20 @@ void MTSTexture::fillRect(const SDL_Rect& rect, SDL_Color color)
 	SDL_RenderFillRect(s_renderer, &rect);
 }
 
-void MTSTexture::copyToRenderer(const SDL_Rect* src, const SDL_Rect* dst)
+void MTSTexture::render(const SDL_Rect* src, const SDL_Rect* dst)
 {
 	if (!checkRenderer()) return;
 	SDL_RenderCopy(s_renderer, m_texture_ptr.get(), src, dst);
 	
 }
 
-void MTSTexture::copyToRenderer(const int x, const int y)
+void MTSTexture::render(const SDL_Rect& dst)
+{
+	if (!checkRenderer()) return;
+	SDL_RenderCopy(s_renderer, m_texture_ptr.get(), NULL, &dst);
+}
+
+void MTSTexture::render(const int x, const int y)
 {
 	if (!checkRenderer()) return;
 	SDL_Rect dstRect = {};

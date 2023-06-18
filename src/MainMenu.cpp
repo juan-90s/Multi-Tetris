@@ -1,30 +1,34 @@
 #include "MainMenu.h"
 #include "MainOption.h"
 #include "Tetris.h"
+#include "Config.h"
 
 
 void MainMenu::init(){
     MTSFont font("assets/repetition.ttf", 50, { 255, 255, 255 });
-    m_vecLabel.push_back(MTSLabel("PLAY", font));
-    m_vecLabel.push_back(MTSLabel("OPTION", font));
-    m_vecLabel.push_back(MTSLabel("QUIT", font));
+    m_view->setPos(100, 100);
+    addCell(std::make_shared<MTSLabel>("PLAY", font));
+    addCell(std::make_shared<MTSLabel>("OPTION", font));
+    addCell(std::make_shared<MTSLabel>("QUIT", font));
+    activate(0);
+
 }
 
-void MainMenu::enter_select(){
+void MainMenu::press_enter(){
     switch (m_index)
     {
     case 0:
-        push(new Tetris(m_Rect, 20, 10, 32, 2));
+        push(new Tetris({ 0, 0, m_view->getRect().w, m_view->getRect().h }, 20, 10, 32, 2));
         break;
     
     case 1:
-        push(new MainOption(m_Rect));
+        push(new MainOption({ 0, 0, m_view->getRect().w, m_view->getRect().h }));
         break;
     
     case 2:
         quit();
         break;
-    
+
     default:
         break;
     }

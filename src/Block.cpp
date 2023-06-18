@@ -58,7 +58,7 @@ void Block::rotate()
 	}
 }
 
-void Block::draw(int leftMargin, int topMargin, int size)
+void Block::render(int leftMargin, int topMargin, int size)
 {
 	SDL_Rect dstRect = { 0, };
 	dstRect.w = size;
@@ -66,7 +66,7 @@ void Block::draw(int leftMargin, int topMargin, int size)
 	for (int i = 0; i < 4; i++) {
 		dstRect.x = leftMargin + m_blockPoints[i].col * size;
 		dstRect.y = topMargin + m_blockPoints[i].row * size;
-		m_blockIMG.copyToRenderer(NULL, &dstRect);
+		m_blockIMG.render(dstRect);
 	}
 }
 

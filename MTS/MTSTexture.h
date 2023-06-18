@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "SDL_rect.h"
+#include "SDL_ttf.h"
 
 struct SDL_Renderer;
 struct SDL_Texture;
@@ -26,13 +27,15 @@ public:
 
 	MTSTexture(const int width, const int height);
 	MTSTexture(const char* filename, const int width=0, const int height=0);
+	MTSTexture(TTF_Font* font, const char* text, SDL_Color color);
 	
 	static void setRenderer(SDL_Renderer* renderer);
 	static bool checkRenderer();
 	static void fillRect(const SDL_Rect& rect, SDL_Color color);
 
-	void copyToRenderer(const SDL_Rect* src, const SDL_Rect* dst);
-	void copyToRenderer(const int x, const int y);
+	void render(const SDL_Rect* src, const SDL_Rect* dst);
+	void render(const SDL_Rect& dst);
+	void render(const int x, const int y);
 	void copyToTexture(MTSTexture& otherTexture, const SDL_Rect* src, const SDL_Rect* dst);
 
 	bool isEmpty() const;

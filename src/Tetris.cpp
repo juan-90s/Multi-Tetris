@@ -3,12 +3,12 @@
 #include <iomanip>
 
 
-Tetris::Tetris(const SDL_Rect& rect, const int rows, const int cols, const int blockSize, const unsigned int playerNum)
+Tetris::Tetris(const SDL_Rect& rect, const int rows, const int cols, const int blockSize, const unsigned int playerNum) :
+	m_iRows(rows),
+	m_iCols(cols),
+	m_iBlockSize(blockSize),
+	MTSScene(rect)
 {
-	this->m_Rect = SDL_Rect(rect);
-	this->m_iRows = rows;
-	this->m_iCols = cols;
-	this->m_iBlockSize = blockSize;
 
 	for (int i = 0; i < rows; i++) {
 		std::vector<int> mapRow;
@@ -19,7 +19,7 @@ Tetris::Tetris(const SDL_Rect& rect, const int rows, const int cols, const int b
 	}
 
 	if (playerNum > 1) {
-		for (int i = 0; i < playerNum; i++) {
+		for (unsigned i = 0; i < playerNum; i++) {
 			int anchor = ((i + 1) * m_iCols / (playerNum + 1));
 			BlockColor color = static_cast<BlockColor>(i+1);
 			m_vecPlayers.push_back(PlayerBlock(color, anchor));
@@ -29,11 +29,22 @@ Tetris::Tetris(const SDL_Rect& rect, const int rows, const int cols, const int b
 		m_vecPlayers.push_back(PlayerBlock());
 	}
 
+	margin_left = (m_view->getRect().x + m_view->getRect().w - m_iCols * m_iBlockSize) / 2;
+	margin_top = 10;
 	
 
 	MTSFont font("assets/repetition.ttf", 50, {255, 255, 255 });
-	m_labelScore = MTSLabel("SCORE", font);
-	m_labelScoreValue = MTSLabel("00000", font);
+
+	auto label_score{ std::make_shared<MTSLabel>("SCORE", font)};
+	label_score->setPos(margin_left + (m_iCols + 2) * m_iBlockSize, margin_top + m_iRows * m_iBlockSize / 2);
+	m_labelScore = label_score;
+	addSubView(label_score);
+
+	auto label_value{ std::make_shared<MTSLabel>("00000", font) };
+	label_value->setPos(margin_left + (m_iCols + 2) * m_iBlockSize, margin_top + m_iRows * m_iBlockSize / 2 + 50);
+	m_labelScoreValue = label_value;
+	addSubView(label_value);
+
 	m_PauseMenu = std::make_unique<PauseMenu>(rect);
 	m_PauseMenu->init();
 	m_PauseMenu->setNestedGame(this);
@@ -50,18 +61,15 @@ void Tetris::init()
 	//playerBlock = PlayerBlock();
 }
 
-void Tetris::draw()
+void Tetris::renderCustom()
 {
 	// get blocks texture
 	MTSTexture* m_IMGS = Block::getIMGs();
 	
-	int margin_left = (m_Rect.x + m_Rect.w - m_iCols * m_iBlockSize) / 2;
-	int margin_top = 10;
-	
-	// render player block
+	// draw player block
 	for (auto i = 0; i < m_vecPlayers.size(); i++) {
-		m_vecPlayers[i].pCur->draw(margin_left, margin_top, m_iBlockSize);
-		m_vecPlayers[i].pNext->draw(margin_left + (m_iCols + 4) * m_iBlockSize, margin_top + 5 * i * m_iBlockSize, m_iBlockSize);
+		m_vecPlayers[i].pCur->render(margin_left, margin_top, m_iBlockSize);
+		m_vecPlayers[i].pNext->render(margin_left + (m_iCols + 4) * m_iBlockSize, margin_top + 5 * i * m_iBlockSize, m_iBlockSize);
 	}
 
 	//playerBlock.pCur->draw(margin_left, margin_top, m_iBlockSize);
@@ -70,46 +78,35 @@ void Tetris::draw()
 	SDL_Rect dstRect = {};
 	dstRect.w = m_iBlockSize;
 	dstRect.h = m_iBlockSize;
-	// render frame
+	// draw frame
 	for (int i = 0; i < m_iRows; i++) {
-		// render line by line
+		// draw line by line
 		dstRect.y = margin_top + i * m_iBlockSize;
 
-		// render grey block wall in left
+		// draw grey block wall in left
 		dstRect.x = margin_left - m_iBlockSize;
-		m_IMGS[0].copyToRenderer(NULL, &dstRect);
+		m_IMGS[0].render(dstRect);
 
-		// render grey block wall in right
+		// draw grey block wall in right
 		dstRect.x = margin_left + m_iCols * m_iBlockSize;
-		m_IMGS[0].copyToRenderer(NULL, &dstRect);
+		m_IMGS[0].render(dstRect);
 
 		for (int j = 0; j < m_iCols; j++) {
 			if (m_vec2dGrid[i][j] == 0) continue;
 			dstRect.x = margin_left + j * m_iBlockSize;
-			m_IMGS[m_vec2dGrid[i][j]].copyToRenderer(NULL, &dstRect);
+			m_IMGS[m_vec2dGrid[i][j]].render(dstRect);
 		}
 	}
 
-	// render bottom
+	// draw bottom
 	dstRect.y = margin_top + m_iRows * m_iBlockSize;
 	for (int j = -1; j < m_iCols + 1; j++) {
 		dstRect.x = margin_left + j * m_iBlockSize;
-		m_IMGS[0].copyToRenderer(NULL, &dstRect);
+		m_IMGS[0].render(dstRect);
 	}
 
-	// render label
-	std::ostringstream ss;
-	ss << std::setw(5) << std::setfill('0') << m_iScore;
-	m_labelScoreValue.setText(ss.str());
-	m_labelScore.copyToRenderer(margin_left + (m_iCols + 2) * m_iBlockSize,
-								margin_top + m_iRows * m_iBlockSize / 2,
-								Align::LEFT);
-	m_labelScoreValue.copyToRenderer(margin_left + (m_iCols + 2) * m_iBlockSize,
-									margin_top + m_iRows * m_iBlockSize / 2 + 50,
-									Align::LEFT);
-
 	if (m_bPause) {
-		m_PauseMenu->draw();
+		m_PauseMenu->render();
 	}
 }
 
@@ -137,7 +134,7 @@ void Tetris::handleEvent(SDL_Event& event)
 		m_PauseMenu->handleEvent(event);
 		return;
 	}
-	int playerNum = m_vecPlayers.size();
+	auto playerNum = m_vecPlayers.size();
 	auto& player1 = m_vecPlayers[0];
 	auto& player2 = playerNum >= 2 ? m_vecPlayers[1] : m_vecPlayers[0];
 
@@ -234,7 +231,7 @@ void Tetris::setPause(bool bFlag)
 
 void Tetris::clearLine()
 {
-	int lines = 0;
+	int lines_cleared = 0;
 	int k = m_iRows - 1;
 	for (int i = m_iRows - 1; i >= 0; i--) {
 		// check whether row i is fully filled
@@ -251,14 +248,18 @@ void Tetris::clearLine()
 			k--;
 		}
 		else {
-			lines++;
+			lines_cleared++;
 		}
 	}
 
-	if (lines > 0) {
+	if (lines_cleared > 0) {
 		// TODO: calculate score
 		// TODO: play SFX
-		m_iScore += 10 * lines;
+		m_iScore += 10 * lines_cleared;
+
+		std::ostringstream ss;
+		ss << std::setw(5) << std::setfill('0') << m_iScore;
+		m_labelScoreValue.lock()->setText(ss.str());
 	}
 }
 

@@ -13,7 +13,7 @@ public:
     void init() override;
     void setNestedGame(Tetris* game);
 private:
-    void enter_select() override;
+    void press_enter() override;
     Tetris* m_tetris;
 };
 

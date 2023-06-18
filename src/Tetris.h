@@ -35,11 +35,11 @@ public:
 class Tetris : public MTSScene
 {
 public:
-	Tetris() = default;
+	Tetris() = delete;
 	Tetris(const SDL_Rect& rect, const int rows, const int cols, const int blockSize, const unsigned int playerNum = 1);
 
 	void init() override;
-	void draw() override;
+	void renderCustom() override;
 	void update() override;
 	void handleEvent(SDL_Event& event) override;
 
@@ -47,7 +47,7 @@ public:
 	void rotate(PlayerBlock& pBlock);
 	void setPause(bool bFlag);
 	
-
+	
 	PlayerBlock& player(const int num);
 private:
 	void drop(PlayerBlock& pBlock);
@@ -56,18 +56,21 @@ private:
 	bool checkInPlayers(Block* block) const;
 	void fixBlock(Block* block);
 private:
+	using MTSScene::m_view;
 	std::vector<PlayerBlock> m_vecPlayers;
 
 	bool m_bPause = 0;
-	std::unique_ptr<PauseMenu> m_PauseMenu;
+	std::unique_ptr<PauseMenu> m_PauseMenu = nullptr;
 
 	std::vector< std::vector<int> > m_vec2dGrid;  // store block type(1..7) in 2-d map. 0 means empty
-	int m_iRows = 0;
-	int m_iCols = 0;
-	int m_iBlockSize = 0;
+	const int m_iRows = 0;
+	const int m_iCols = 0;
+	const int m_iBlockSize = 0;
+	int margin_left;
+	int margin_top;
 
-	MTSLabel m_labelScore;
-	MTSLabel m_labelScoreValue;
+	std::weak_ptr<MTSLabel> m_labelScore;
+	std::weak_ptr<MTSLabel> m_labelScoreValue;
 
 	int m_iScore = 0;
 };

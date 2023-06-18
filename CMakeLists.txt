@@ -3,7 +3,7 @@ project(Multi-Tetris
 	LANGUAGES CXX
 )
 
-set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_STANDARD 20)
 
 # use FindSDL2.cmake
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sdl2)
@@ -35,12 +35,14 @@ endif(UNIX and not APPLE)
 include_directories(	
 	src 
 	assets
+	assets/MTS
 	${SDL_H}
 )
 
 set(SOURCE_FILES 
 	src/main.cpp src/Game.cpp src/Tetris.cpp src/Block.cpp src/MainMenu.cpp src/PauseMenu.cpp
-	src/MTSFont.cpp src/MTSLabel.cpp src/MTSScene.cpp src/MTSSceneManager.cpp src/MTSTexture.cpp src/MTSMenu.cpp)
+	src/MTSFont.cpp src/MTSLabel.cpp src/MTSScene.cpp src/MTSSceneManager.cpp src/MTSTexture.cpp src/MTSMenu.cpp
+)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${SDL_LIB})

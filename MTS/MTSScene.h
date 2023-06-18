@@ -1,24 +1,27 @@
 #pragma once
+#include <memory>
 #include "SDL_rect.h"
 #include "SDL_events.h"
-#include "memory"
+#include "MTSView.h"
+
 
 class MTSScene
 {
 public:
 	MTSScene() = default;
-	explicit MTSScene(const SDL_Rect& rect) : m_Rect(rect) {};
+	explicit MTSScene(const SDL_Rect& rect) : m_view(std::make_shared<MTSView>(rect)) {};
 	virtual void init() {};
 	virtual void release() {};
 	virtual void update() {};
-	virtual void draw() {};
+	virtual void renderCustom() {};
 	virtual void handleEvent(SDL_Event& event ) {};
 	void quit();
+	void addSubView(std::shared_ptr<MTSView> view_ptr);
+	void render();
 
 protected:
 	void push(MTSScene* pScene);
 	void jumpto(MTSScene* pScene);
-
-	SDL_Rect m_Rect = {};
+	std::shared_ptr<MTSView> m_view;
 };
 

@@ -1,11 +1,11 @@
 #pragma once
-#include "MTSMenuOption.h"
+#include "MTSMenu.h"
 
 class MainOption:
-	public MTSMenuOption
+	public MTSMenu
 {
 public:
-	using MTSMenuOption::MTSMenuOption;
+	using MTSMenu::MTSMenu;
 	void init() override;
 private:
 	

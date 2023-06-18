@@ -13,7 +13,7 @@ class MTSMenuOption :
 {
 public:
 	using MTSScene::MTSScene;
-	void draw() override;
+	void renderCustom() override;
 	void handleEvent(SDL_Event& event) override;
 	
 protected:

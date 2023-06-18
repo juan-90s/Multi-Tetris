@@ -2,14 +2,14 @@
 #include "MTSUtility.h"
 #include <sstream>
 
-void MTSMenuOption::draw()
+void MTSMenuOption::renderCustom()
 {
-	MTSTexture::fillRect(m_Rect, { 0,0,0,150 });
-	int x = (m_Rect.x + m_Rect.w) / 10;
+	MTSTexture::fillRect(m_view->getRect(), { 0,0,0,150 });
+	int x = (m_view->getRect().x + m_view->getRect().w) / 10;
 	int y = 150;
 	for (int i = 0; i < m_vecLabel.size(); i++) {
-		m_vecLabel[i].first.copyToRenderer(x, y, Align::LEFT);
-		m_vecLabel[i].second.copyToRenderer(9 * x, y, Align::RIGHT);
+		//m_vecLabel[i].first.draw(x, y, Align::LEFT);
+		//m_vecLabel[i].second.draw(9 * x, y, Align::RIGHT);
 		y += 80;
 	}
 }

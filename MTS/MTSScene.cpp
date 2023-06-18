@@ -8,6 +8,16 @@ void MTSScene::quit()
 		MTSSceneManager::popState();
 }
 
+void MTSScene::addSubView(std::shared_ptr<MTSView> view_ptr)
+{
+	m_view->addSubView(view_ptr);
+}
+
+void MTSScene::render()
+{
+	m_view->render();
+}
+
 void MTSScene::push(MTSScene* pScene)
 {
 	pScene->init();

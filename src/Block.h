@@ -19,7 +19,7 @@ public:
 	void drop();
 	void moveLeftRight(int offset);
 	void rotate();
-	void draw(int leftMargin, int topMargin, int size=m_size);
+	void render(int leftMargin, int topMargin, int size=m_size);
 
 	int getType() const;
 	void setShape(const int type);

@@ -6,8 +6,7 @@
 #include "Tetris.h"
 #include "MainMenu.h"
 #include "MTSSceneManager.h"
-
-
+#include "Config.h"
 
 namespace {
 	const int FPS = 60;
@@ -16,10 +15,10 @@ namespace {
 
 Game::Game()
 {
-	m_iWidth = 960;
-	m_iHeight = 720;
+	int width = 960;
+	int height = 720;
 	m_iDelay = RENDER_DELAY;
-	m_bUpdate = false;
+
 	// initialize SDL window and renderer
 	bool isSDLinited = SDL_Init(SDL_INIT_EVERYTHING) >= 0;
 	bool isIMGinited = (IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == IMG_INIT_PNG;
@@ -29,12 +28,13 @@ Game::Game()
 		m_gWindow = SDL_CreateWindow("Tetris",
 			0,
 			30,
-			m_iWidth, m_iHeight,
+			width, height,
 			SDL_WINDOW_SHOWN);
 
 		if (m_gWindow != 0) {
 			m_gRenderer = SDL_CreateRenderer(m_gWindow, -1, 0);
 			MTSTexture::setRenderer(m_gRenderer);
+			Config::setWindow(m_gWindow);
 		}
 	}
 	else {
@@ -49,23 +49,27 @@ void Game::play()
 {
 	// config random seed
 	srand((unsigned int)time(0));
-	SDL_Rect rect = {0, 0, m_iWidth, m_iHeight};
+	SDL_Rect rect = {0, 0, Config::getMainWindowWidth(), Config::getMainWindowHeight() };
 	MTSSceneManager::pushState(new MainMenu(rect));
 	MTSSceneManager::getCurrent()->init();
 	bg = MTSTexture("assets/background.png");
 	int timer = 0;
+	bool bUpdate = false;
 	while (inputEvent()) {
-		if (MTSSceneManager::getCurrent() == nullptr)
+		// empty scene stack guard
+		if (MTSSceneManager::getCurrent() == nullptr) {
 			break;
+		}
+
 		SDL_Delay(1);
 		timer += getDelay();
 		if (timer > m_iDelay) {
 			timer = 0;
-			m_bUpdate = true;
+			bUpdate = true;
 		}
 
-		if (m_bUpdate) {
-			m_bUpdate = false;
+		if (bUpdate) {
+			bUpdate = false;
 			MTSSceneManager::getCurrent()->update();
 			render();
 		}
@@ -77,8 +81,9 @@ void Game::play()
 void Game::render()
 {
 	SDL_RenderClear(m_gRenderer);
-	bg.copyToRenderer(nullptr, nullptr);
-	MTSSceneManager::getCurrent()->draw();
+	bg.render(nullptr, nullptr);
+	MTSSceneManager::getCurrent()->renderCustom();
+	MTSSceneManager::getCurrent()->render();
 	SDL_RenderPresent(m_gRenderer);
 }
 
