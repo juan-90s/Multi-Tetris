@@ -10,6 +10,9 @@ MTSOptionView::MTSOptionView(std::string_view title, std::vector<std::string> op
 	this->title_label = title_label;
 
 	auto option_label = std::make_shared<MTSLabel>("", font);
+	if (m_options.size() > 0) {
+		option_label->setText(m_options[0]);
+	}
 	option_label->align = Align::RIGHT;
 	addSubView(option_label);
 	this->option_label = option_label;
@@ -17,7 +20,6 @@ MTSOptionView::MTSOptionView(std::string_view title, std::vector<std::string> op
 
 void MTSOptionView::render()
 {
-
 	MTSView::render();
 }
 
@@ -35,6 +37,9 @@ std::string_view MTSOptionView::getTitle()
 void MTSOptionView::addOption(std::string_view option)
 {
 	m_options.push_back(std::string(option));
+	if (m_options.size() == 1) {
+		option_label.lock()->setText(option);
+	}
 }
 
 std::string_view MTSOptionView::getOption()

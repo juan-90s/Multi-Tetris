@@ -1,6 +1,6 @@
 #include "MainMenu.h"
 #include "MainOption.h"
-#include "Tetris.h"
+#include "TetrisOption.h"
 #include "Config.h"
 
 
@@ -18,7 +18,7 @@ void MainMenu::press_enter(){
     switch (m_index)
     {
     case 0:
-        push(new Tetris({ 0, 0, m_view->getRect().w, m_view->getRect().h }, 20, 10, 32, 2));
+        push(new TetrisOption({ 0, 0, m_view->getRect().w, m_view->getRect().h }));
         break;
     
     case 1:

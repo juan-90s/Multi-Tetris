@@ -29,7 +29,7 @@ Tetris::Tetris(const SDL_Rect& rect, const int rows, const int cols, const int b
 		m_vecPlayers.push_back(PlayerBlock());
 	}
 
-	margin_left = (m_view->getRect().x + m_view->getRect().w - m_iCols * m_iBlockSize) / 2;
+	margin_left = (m_view->getRect().x + m_view->getRect().w - m_iCols * m_iBlockSize) / 2 - 50;
 	margin_top = 10;
 	
 

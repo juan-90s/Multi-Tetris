@@ -26,5 +26,6 @@ void MTSScene::push(MTSScene* pScene)
 
 void MTSScene::jumpto(MTSScene* pScene)
 {
+	pScene->init();
 	MTSSceneManager::changeState(pScene);
 }
