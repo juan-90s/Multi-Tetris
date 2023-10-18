@@ -16,6 +16,11 @@ MTSMenu::MTSMenu(const SDL_Rect& rect)
 	m_tableView = std::dynamic_pointer_cast<MTSTableView>(m_view);
 }
 
+void MTSMenu::init()
+{
+	
+}
+
 void MTSMenu::renderCustom()
 {
 	//MTSTexture::fillRect(m_view->getRect(), {0,0,0,150});
@@ -67,6 +72,10 @@ void MTSMenu::nav_up()
 	inactivate(m_index);
 	scroll(m_index, size, -1);
 	activate(m_index);
+
+	if (sound != nullptr) {
+
+	}
 }
 
 void MTSMenu::nav_down()
@@ -76,6 +85,10 @@ void MTSMenu::nav_down()
 	inactivate(m_index);
 	scroll(m_index, size, 1);
 	activate(m_index);
+
+	if (sound != nullptr) {
+
+	}
 }
 
 void MTSMenu::nav_left()
@@ -125,5 +138,6 @@ void MTSMenu::inactivate(unsigned index)
 		label->setPos(0, 0);
 	}
 }
+
 
 

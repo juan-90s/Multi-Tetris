@@ -4,6 +4,7 @@
 
 void TetrisOption::init()
 {
+    MTSMenu::init();
 	MTSFont font("assets/repetition.ttf", 40, { 255, 255, 255 });
     m_view->setRect({ 100, 100, Config::getMainWindowWidth() - 200, Config::getMainWindowHeight() - 200 });
 	std::vector<std::string> playerNUM_options{"SINGLE","DOUBLE"};

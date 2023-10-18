@@ -5,6 +5,7 @@
 
 
 void MainMenu::init(){
+    MTSMenu::init();
     MTSFont font("assets/repetition.ttf", 50, { 255, 255, 255 });
     m_view->setPos(100, 100);
     addCell(std::make_shared<MTSLabel>("PLAY", font));

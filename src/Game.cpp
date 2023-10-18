@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include "SDL_image.h"
+#include "SDL_mixer.h"
 #include "Tetris.h"
 #include "MainMenu.h"
 #include "MTSSceneManager.h"
@@ -23,7 +24,8 @@ Game::Game()
 	bool isSDLinited = SDL_Init(SDL_INIT_EVERYTHING) >= 0;
 	bool isIMGinited = (IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == IMG_INIT_PNG;
 	bool isTTFinited = TTF_Init() >= 0;
-	if (isSDLinited && isIMGinited && isTTFinited) {
+	bool isMIXinited = Mix_OpenAudio(48000, AUDIO_S16, 2, 2048) >= 0;
+	if (isSDLinited && isIMGinited && isTTFinited && isMIXinited) {
 		// setup window size
 		m_gWindow = SDL_CreateWindow("Tetris",
 			0,
@@ -91,6 +93,8 @@ void Game::quit()
 {
 	SDL_DestroyRenderer(m_gRenderer);
 	SDL_DestroyWindow(m_gWindow);
+	IMG_Quit();
+	Mix_Quit();
 	SDL_Quit();
 }
 

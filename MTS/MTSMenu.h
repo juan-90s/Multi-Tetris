@@ -2,6 +2,7 @@
 #include "MTSScene.h"
 #include "MTSLabel.h"
 #include "MTSTableView.h"
+#include "SDL_mixer.h"
 #include <vector>
 class MTSMenu :
     public MTSScene
@@ -9,6 +10,7 @@ class MTSMenu :
 public:
     MTSMenu();
     explicit MTSMenu(const SDL_Rect& rect);
+    void init() override;
     void renderCustom() override;
     void handleEvent(SDL_Event& event) override;
     void addCell(std::shared_ptr<MTSView> cell);
@@ -23,5 +25,6 @@ protected:
 
     unsigned m_index = 0;
     std::shared_ptr<MTSTableView> m_tableView;
+    Mix_Chunk* sound = nullptr;
 };
 
