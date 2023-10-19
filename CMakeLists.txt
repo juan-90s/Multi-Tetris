@@ -36,8 +36,8 @@ file(GLOB_RECURSE SOURCES src/*.cpp src/MTS/*.cpp)
 file(GLOB_RECURSE ASSETS assets/*)
 
 include_directories(
-	includes
-	includes/MTS
+	include
+	include/MTS
 	${SDL_H}
 )
 
