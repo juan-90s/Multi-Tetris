@@ -50,3 +50,4 @@ build/
 
 # Cmake module
 cmake/
+CMakeCache.txt

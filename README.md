@@ -10,12 +10,14 @@ Obviously, you need SDL2 and its extension SDL2_image, SDL2_ttf
 $ brew install sdl2
 $ brew install sdl2_img
 $ brew install sdl_ttf
+$ brew install sdl2_mixer
 $ brew install zlib
 $ brew install libpng
 ~~~
 ### Linux
+#### Ubuntu or Debain
 ~~~shell
-$ sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev
+$ sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
 $ sudo apt install zlib1g libpng-dev
 ~~~
 
@@ -40,7 +42,7 @@ You can easily setup the project on Visual Studio.
 5. In Linker > Input, edit Additional Dependencies, add SDL2.lib SDL2main.lib
 6. In Linker > SubSystem, select **Console**. If you don't need the terminal to observe debug output, then select **Windows**
 
-Also remember to configurate SDL2 extension as above.
+Also remember to configurate other SDL2 extension as above.
 
 ## Credits
 [SDL2](https://github.com/libsdl-org)
